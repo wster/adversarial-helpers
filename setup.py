@@ -1,7 +1,7 @@
 import setuptools
 
 setuptools.setup(
-    name='adversarial-helpers',
-    scripts=['adversarial-helpers'],
+    name='aux',
+    scripts=['aux'],
     packages=setuptools.find_packages(),
  )
