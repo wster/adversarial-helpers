@@ -1,0 +1,9 @@
+setup.py
+aux/__init__.py
+aux.egg-info/PKG-INFO
+aux.egg-info/SOURCES.txt
+aux.egg-info/dependency_links.txt
+aux.egg-info/not-zip-safe
+aux.egg-info/top_level.txt
+aux/vaes/__init__.py
+aux/vaes/dense_vae.py
