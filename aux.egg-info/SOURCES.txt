@@ -1,3 +1,4 @@
+DenseVAE.py
 aux
 setup.py
 aux.egg-info/PKG-INFO
