@@ -1,3 +1,7 @@
+from tensorflow.keras import backend as K
+from tensorflow.keras.layers import Layer
+from random import randint
+
 class Noise(Layer):
     def __init__(self, minval, maxval, shape, **kwargs):
         self.minval = minval

@@ -1,3 +1,6 @@
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Dense
+
 class DenseAE(Model):
     def __init__(self, original_dim, intermediate_dim, latent_dim, **kwargs):
         super(DenseAE, self).__init__(**kwargs)
