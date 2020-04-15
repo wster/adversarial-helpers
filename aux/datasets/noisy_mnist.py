@@ -13,8 +13,8 @@ def load_data(low, high):
     noise_train = np.random.uniform(low=low, high=high, size=x_train.shape)
     noise_test = np.random.uniform(low=low, high=high, size=x_test.shape)
 
-    x_train = x_train + noise_train
-    x_test = x_test + noise_test
+    x_train = np.clip(x_train + noise_train, 0, 1)
+    x_test = np.clip(x_test + noise_test, 0, 1)
 
     y_train = to_categorical(y_train)
     y_test = to_categorical(y_test)
