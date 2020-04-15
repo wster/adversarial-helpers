@@ -59,9 +59,8 @@ class Decoder(Layer):
         return x5
 
 class ConvVAE(Model):
-    def __init__(self, original_dim, latent_dim=32, targets=None, **kwargs):
+    def __init__(self, latent_dim=32, targets=None, **kwargs):
         super(ConvVAE, self).__init__(**kwargs)
-        self.original_dim = original_dim
         self.targets = targets
         self.encoder = Encoder(latent_dim=latent_dim)
         self.decoder = Decoder()
