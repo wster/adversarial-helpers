@@ -7,6 +7,8 @@ aux.egg-info/not-zip-safe
 aux.egg-info/top_level.txt
 aux/aes/__init__.py
 aux/aes/dense_ae.py
+aux/datasets/__init__.py
+aux/datasets/mnist.py
 aux/layers/__init__.py
 aux/layers/noise_layer.py
 aux/layers/rotate_layer.py
