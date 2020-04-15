@@ -79,6 +79,7 @@ class ConvVAE(Model):
 
         self.add_loss(K.mean(kl_loss + reconstruction_loss))
         """
+        
         z_mean, z_log_var, z = self.encoder(inputs)
         reconstructions = self.decoder(z)
         kl_loss = - 0.5 * K.mean(1 + z_log_var - K.square(z_mean) - K.exp(z_log_var), axis=-1)
@@ -86,6 +87,6 @@ class ConvVAE(Model):
         targets = inputs if self.targets is None else self.targets
         reconstruction_loss = mse(reconstructions, targets)
 
-        self.add_loss(kl_loss + reconstruction_loss)
+        #self.add_loss(kl_loss + reconstruction_loss)
 
         return reconstructions
