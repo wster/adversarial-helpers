@@ -8,7 +8,7 @@ def base(attack, model, images, labels):
     # Preprocess test data to feed to Foolbox
     labels = np.argmax(labels, axis=1) # From categorical to raw labels
     images, labels = tf.convert_to_tensor(images, dtype_hint=tf.float32), tf.convert_to_tensor(labels, dtype_hint=tf.int64)
-    fmodel = TensorFlowModel(model, bounds=(0,1))
+    fmodel = TensorFlowModel(model, bounds=(-0.3,1.3))
 
     print("Clean accuracy:", accuracy(fmodel, images, labels))
     print("")
