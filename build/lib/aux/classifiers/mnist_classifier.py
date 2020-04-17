@@ -13,7 +13,7 @@ class MNISTClassifier(Model):
             MaxPool2D(),
             Flatten(),
             Dense(1024, activation='relu'),
-            Dense(10, activation='softmax')
+            #Dense(10, activation='softmax')
         ])
 
     def call(self, inputs):
