@@ -4,11 +4,11 @@ import foolbox.attacks as fa
 import numpy as np
 
 
-def base(attack, model, images, labels):
+def base(attack, model, images, labels, bounds):
     # Preprocess test data to feed to Foolbox
     labels = np.argmax(labels, axis=1) # From categorical to raw labels
     images, labels = tf.convert_to_tensor(images, dtype_hint=tf.float32), tf.convert_to_tensor(labels, dtype_hint=tf.int64)
-    fmodel = TensorFlowModel(model, bounds=(-0.3,1.3))
+    fmodel = TensorFlowModel(model, bounds=bounds)
 
     print("Clean accuracy:", accuracy(fmodel, images, labels))
     print("")
@@ -24,7 +24,7 @@ def base(attack, model, images, labels):
         print("For epsilon = {}, there were {}/{} successful attacks (robustness = {})".format(epsilons[i], num_successes, nb_attacks, round(1.0 - num_successes / nb_attacks, 2)))
 
 
-def pgd_attack(model, images, labels):
+def pgd_attack(model, images, labels, bounds):
     """ Evaluates robustness against an L-infinity PGD attack with random restart and 40 steps.
     Args:
         model : Tensorflow model to evaluate.
@@ -34,10 +34,10 @@ def pgd_attack(model, images, labels):
 
     print("Performing PGD attack...")
     attack = fa.LinfPGD()
-    base(attack, model, images, labels)
+    base(attack, model, images, labels, bounds)
 
 
-def fgsm_attack(model, images, labels):
+def fgsm_attack(model, images, labels, bounds):
     """ Evaluates robustness against an L-infinity FGSM attack without random restart.
     Args:
         model : Tensorflow model to evaluate.
@@ -47,10 +47,10 @@ def fgsm_attack(model, images, labels):
 
     print("Performing FGSM attack...")
     attack = fa.FGSM()
-    base(attack, model, images, labels)
+    base(attack, model, images, labels, bounds)
 
 
-def basic_iterative_attack(model, images, labels):
+def basic_iterative_attack(model, images, labels, bounds):
     """ Evaluates robustness against an L-infinity Basic Iterative Attack with 10 steps.
     Args:
         model : Tensorflow model to evaluate.
@@ -60,7 +60,7 @@ def basic_iterative_attack(model, images, labels):
 
     print("Performing Basic Iterative Attack...")
     attack = fa.LinfBasicIterativeAttack()
-    base(attack, model, images, labels)
+    base(attack, model, images, labels, bounds)
 
 """
 from tensorflow.keras.layers import Input, Dense, Flatten
