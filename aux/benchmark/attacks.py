@@ -61,27 +61,3 @@ def basic_iterative_attack(model, images, labels, bounds):
     print("Performing Basic Iterative Attack...")
     attack = fa.LinfBasicIterativeAttack()
     base(attack, model, images, labels, bounds)
-
-from tensorflow.keras.layers import Input, Dense, Flatten
-from tensorflow.keras.models import Model
-from tensorflow.keras.losses import categorical_crossentropy
-from tensorflow.keras.datasets import mnist
-from tensorflow.keras.utils import to_categorical
-
-(x_train, y_train), (x_test, y_test) = mnist.load_data()
-y_train, y_test = to_categorical(y_train), to_categorical(y_test)
-
-x_train = x_train.astype('float32') / 255
-x_train = np.expand_dims(x_train, axis=-1)
-x_test = x_test.astype('float32') / 255
-x_test = np.expand_dims(x_test, axis=-1)
-
-inputs = Input(shape=(28,28,1))
-flatten = Flatten()(inputs)
-outputs = Dense(10, activation='softmax')(flatten)
-model = Model(inputs, outputs)
-model.compile(optimizer='adam', loss=categorical_crossentropy, metrics=['accuracy'])
-model.fit(x_train, y_train)
-
-pgd_attack(model, x_test, y_test, bounds=(0,1))
-model.evaluate(x_test, y_test)
