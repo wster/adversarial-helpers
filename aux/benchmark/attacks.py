@@ -20,9 +20,9 @@ def base(attack, model, images, labels, epsilons, bounds):
     nb_attacks = len(images)
     for i in range(len(epsilons)):
         success_idxs = successes[i] == 1
-        
+
         success_imgs.append(imgs[i][success_idxs])
-        success_labels.append(labels[success_idxs])
+        success_labels.append(labels.numpy()[success_idxs])
 
         num_successes = np.count_nonzero(success_idxs)
         print("For epsilon = {}, there were {}/{} successful attacks (robustness = {})".format(epsilons[i], num_successes, nb_attacks, round(1.0 - num_successes / nb_attacks, 2)))
