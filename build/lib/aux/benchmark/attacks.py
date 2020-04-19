@@ -22,6 +22,7 @@ def base(attack, model, images, labels, epsilons, bounds):
         success_idxs = successes[i] == 1
 
         success_imgs.append(imgs[i][success_idxs])
+        print(type(the_labels))
         success_labels.append(the_labels[success_idxs])
 
         num_successes = np.count_nonzero(success_idxs)
