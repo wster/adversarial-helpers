@@ -13,7 +13,7 @@ def base(attack, model, images, labels, epsilons, bounds):
     print("")
 
     # Report robustness accuracy
-    _, imgs, successes = attack(fmodel, images, labels, epsilons=epsilons)
+    the_labels, imgs, successes = attack(fmodel, images, labels, epsilons=epsilons)
     successes = successes.numpy()
     success_imgs, success_labels = [], []
 
@@ -22,7 +22,7 @@ def base(attack, model, images, labels, epsilons, bounds):
         success_idxs = successes[i] == 1
 
         success_imgs.append(imgs[i][success_idxs])
-        success_labels.append(labels.numpy()[success_idxs])
+        success_labels.append(the_labels[success_idxs])
 
         num_successes = np.count_nonzero(success_idxs)
         print("For epsilon = {}, there were {}/{} successful attacks (robustness = {})".format(epsilons[i], num_successes, nb_attacks, round(1.0 - num_successes / nb_attacks, 2)))
