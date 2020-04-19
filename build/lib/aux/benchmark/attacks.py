@@ -3,7 +3,6 @@ from foolbox import TensorFlowModel, accuracy, samples
 import foolbox.attacks as fa
 import numpy as np
 
-
 def base(attack, model, images, labels, bounds):
     # Preprocess test data to feed to Foolbox
     labels = np.argmax(labels, axis=1) # From categorical to raw labels
@@ -15,14 +14,18 @@ def base(attack, model, images, labels, bounds):
 
     # Report robustness accuracy
     epsilons = [0.03, 0.1, 0.3]
-    _, _, successes = attack(fmodel, images, labels, epsilons=epsilons)
+    _, imgs, successes = attack(fmodel, images, labels, epsilons=epsilons)
     successes = successes.numpy()
+    successes_imgs = []
 
     nb_attacks = len(images)
     for i in range(len(epsilons)):
-        num_successes = np.count_nonzero(successes[i]==1)
+        success_idxs = successes[i] == 1
+        num_successes = np.count_nonzero(success_idxs)
+        successes_imgs.append(imgs[i][success_idxs])
         print("For epsilon = {}, there were {}/{} successful attacks (robustness = {})".format(epsilons[i], num_successes, nb_attacks, round(1.0 - num_successes / nb_attacks, 2)))
-
+    
+    return successes_imgs
 
 def pgd_attack(model, images, labels, bounds):
     """ Evaluates robustness against an L-infinity PGD attack with random restart and 40 steps.
@@ -34,7 +37,7 @@ def pgd_attack(model, images, labels, bounds):
 
     print("Performing PGD attack...")
     attack = fa.LinfPGD()
-    base(attack, model, images, labels, bounds)
+    return base(attack, model, images, labels, bounds)
 
 
 def fgsm_attack(model, images, labels, bounds):
@@ -47,7 +50,7 @@ def fgsm_attack(model, images, labels, bounds):
 
     print("Performing FGSM attack...")
     attack = fa.FGSM()
-    base(attack, model, images, labels, bounds)
+    return base(attack, model, images, labels, bounds)
 
 
 def basic_iterative_attack(model, images, labels, bounds):
@@ -60,4 +63,4 @@ def basic_iterative_attack(model, images, labels, bounds):
 
     print("Performing Basic Iterative Attack...")
     attack = fa.LinfBasicIterativeAttack()
-    base(attack, model, images, labels, bounds)
+    return base(attack, model, images, labels, bounds)
