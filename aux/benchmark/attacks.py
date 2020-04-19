@@ -1,7 +1,9 @@
 import tensorflow as tf
-from foolbox import TensorFlowModel, accuracy, samples
 import foolbox.attacks as fa
 import numpy as np
+
+from foolbox import TensorFlowModel, accuracy, samples
+from tensorflow.keras.utils import to_categorical
 
 def base(attack, model, images, labels, epsilons, bounds):
     # Preprocess test data to feed to Foolbox
@@ -22,7 +24,8 @@ def base(attack, model, images, labels, epsilons, bounds):
         success_idxs = successes[i] == 1
 
         success_imgs.append(imgs[i][success_idxs])
-        success_labels.append(labels.numpy()[success_idxs])
+        categorical_labels = to_categorical(labels.numpy()[success_idxs])
+        success_labels.append(categorical_labels)
 
         num_successes = np.count_nonzero(success_idxs)
         print("For epsilon = {}, there were {}/{} successful attacks (robustness = {})".format(epsilons[i], num_successes, nb_attacks, round(1.0 - num_successes / nb_attacks, 2)))
