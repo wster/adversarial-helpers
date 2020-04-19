@@ -3,7 +3,7 @@ from foolbox import TensorFlowModel, accuracy, samples
 import foolbox.attacks as fa
 import numpy as np
 
-def base(attack, model, images, labels, bounds):
+def base(attack, model, images, labels, epsilons, bounds):
     # Preprocess test data to feed to Foolbox
     labels = np.argmax(labels, axis=1) # From categorical to raw labels
     images, labels = tf.convert_to_tensor(images, dtype_hint=tf.float32), tf.convert_to_tensor(labels, dtype_hint=tf.int64)
@@ -13,7 +13,6 @@ def base(attack, model, images, labels, bounds):
     print("")
 
     # Report robustness accuracy
-    epsilons = [0.03, 0.1, 0.3]
     _, imgs, successes = attack(fmodel, images, labels, epsilons=epsilons)
     successes = successes.numpy()
     successes_imgs = []
@@ -27,7 +26,7 @@ def base(attack, model, images, labels, bounds):
     
     return successes_imgs
 
-def pgd_attack(model, images, labels, bounds):
+def pgd_attack(model, images, labels, epsilons=[0.03, 0.1, 0.3], bounds=(0,1)):
     """ Evaluates robustness against an L-infinity PGD attack with random restart and 40 steps.
     Args:
         model : Tensorflow model to evaluate.
@@ -37,10 +36,10 @@ def pgd_attack(model, images, labels, bounds):
 
     print("Performing PGD attack...")
     attack = fa.LinfPGD()
-    return base(attack, model, images, labels, bounds)
+    return base(attack, model, images, labels, epsilons, bounds)
 
 
-def fgsm_attack(model, images, labels, bounds):
+def fgsm_attack(model, images, labels, epsilons=[0.03, 0.1, 0.3], bounds=(0,1)):
     """ Evaluates robustness against an L-infinity FGSM attack without random restart.
     Args:
         model : Tensorflow model to evaluate.
@@ -50,10 +49,10 @@ def fgsm_attack(model, images, labels, bounds):
 
     print("Performing FGSM attack...")
     attack = fa.FGSM()
-    return base(attack, model, images, labels, bounds)
+    return base(attack, model, images, labels, epsilons, bounds)
 
 
-def basic_iterative_attack(model, images, labels, bounds):
+def basic_iterative_attack(model, images, labels, epsilons=[0.03, 0.1, 0.3], bounds=(0,1)):
     """ Evaluates robustness against an L-infinity Basic Iterative Attack with 10 steps.
     Args:
         model : Tensorflow model to evaluate.
@@ -63,4 +62,4 @@ def basic_iterative_attack(model, images, labels, bounds):
 
     print("Performing Basic Iterative Attack...")
     attack = fa.LinfBasicIterativeAttack()
-    return base(attack, model, images, labels, bounds)
+    return base(attack, model, images, labels, epsilons, bounds)
