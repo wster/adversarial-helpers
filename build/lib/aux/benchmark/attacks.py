@@ -15,16 +15,19 @@ def base(attack, model, images, labels, epsilons, bounds):
     # Report robustness accuracy
     _, imgs, successes = attack(fmodel, images, labels, epsilons=epsilons)
     successes = successes.numpy()
-    successes_imgs = []
+    success_imgs, success_labels = [], []
 
     nb_attacks = len(images)
     for i in range(len(epsilons)):
         success_idxs = successes[i] == 1
+        
+        success_imgs.append(imgs[i][success_idxs])
+        success_labels.append(labels[success_idxs])
+
         num_successes = np.count_nonzero(success_idxs)
-        successes_imgs.append(imgs[i][success_idxs])
         print("For epsilon = {}, there were {}/{} successful attacks (robustness = {})".format(epsilons[i], num_successes, nb_attacks, round(1.0 - num_successes / nb_attacks, 2)))
     
-    return successes_imgs
+    return success_imgs, success_labels 
 
 def pgd_attack(model, images, labels, epsilons=[0.03, 0.1, 0.3], bounds=(0,1)):
     """ Evaluates robustness against an L-infinity PGD attack with random restart and 40 steps.
