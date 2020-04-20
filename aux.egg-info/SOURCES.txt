@@ -15,9 +15,6 @@ aux/datasets/__init__.py
 aux/datasets/cifar10.py
 aux/datasets/fmnist.py
 aux/datasets/mnist.py
-aux/datasets/noisy_cifar10.py
-aux/datasets/noisy_fmnist.py
-aux/datasets/noisy_mnist.py
 aux/layers/__init__.py
 aux/layers/noise_layer.py
 aux/layers/rotate_layer.py
