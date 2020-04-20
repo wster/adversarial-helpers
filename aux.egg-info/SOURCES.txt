@@ -18,6 +18,8 @@ aux/datasets/mnist.py
 aux/layers/__init__.py
 aux/layers/noise_layer.py
 aux/layers/rotate_layer.py
+aux/training/__init__.py
+aux/training/adv_train.py
 aux/vaes/__init__.py
 aux/vaes/conv_vae.py
 aux/vaes/dense_vae.py
