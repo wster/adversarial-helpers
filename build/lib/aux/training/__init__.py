@@ -1,1 +1,1 @@
-from .adv_train.py import adv_fit
+from .adv_train import adv_fit
