@@ -65,21 +65,19 @@ class Decoder(Layer):
         return x6
 
 class PuVAE(Model):
-    def __init__(self, latent_dim=32, **kwargs):
+    def __init__(self, latent_dim=32, use_kl_loss=True, **kwargs):
         super(PuVAE, self).__init__(**kwargs)
         self.encoder = Encoder(latent_dim)
         self.decoder = Decoder()
+        self.use_kl_loss = use_kl_loss
 
     def call(self, inputs):
         x, y = inputs
         z_mean, z_log_var, z = self.encoder([x, y])
         reconstructions = self.decoder([z, y])
 
-        print("CALCULATING KL LOSS")
-
-        #kl_loss = K.mean(K.square(z_mean)) + K.mean(K.square(z_log_var)) - K.log(K.mean(K.square(z_log_var)) - 1)
-        print("CALCULATED KL LOSS")
-        #self.add_loss(kl_loss)
-        print("DONE CALCULATING KL LOSS")
+        if self.use_kl_loss:
+            kl_loss = K.mean(K.square(z_mean)) + K.mean(K.square(z_log_var)) - K.log(K.mean(K.square(z_log_var)) - 1)
+            self.add_loss(kl_loss)
 
         return (z_mean, z_log_var, reconstructions)
