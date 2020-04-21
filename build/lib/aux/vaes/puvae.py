@@ -1,5 +1,5 @@
 from tensorflow.keras import backend as K
-from tensorflow.keras.layers import Input, Layer, Dense, Conv2D, Flatten, Conv2DTranspose, Reshape
+from tensorflow.keras.layers import Input, Layer, Dense, Conv2D, Flatten, Conv2DTranspose, Reshape, Concatenate
 from tensorflow.keras.models import Model
 from tensorflow.keras.losses import mse
 
@@ -28,15 +28,18 @@ class Encoder(Layer):
         self.sampling = Sampling()
 
     def call(self, inputs):
-        x1 = self.conv1(inputs)
+        x, y = inputs
+
+        x1 = self.conv1(x)
         x2 = self.conv2(x1)
         x3 = self.conv3(x2)
         x4 = Flatten()(x3)
-        x5 = self.dense1(x4)
-        x6 = self.dense2(x5)
+        x5 = Concatenate()([x4, y])
+        x6 = self.dense1(x5)
+        x7 = self.dense2(x6)
         
-        z_mean = self.dense3(x6)
-        z_log_var = self.dense4(x6)
+        z_mean = self.dense3(x7)
+        z_log_var = self.dense4(x7)
         z = self.sampling((z_mean, z_log_var))
 
         return z_mean, z_log_var, z
@@ -50,13 +53,16 @@ class Decoder(Layer):
         self.deconv3 = Conv2DTranspose(1, (3,3), padding='same', activation='relu') # should be sigmoid but results in nan
 
     def call(self, inputs):
-        x1 = self.dense(inputs)
-        x2 = Reshape((7,7,32))(x1)
-        x3 = self.deconv1(x2)
-        x4 = self.deconv2(x3)
-        x5 = self.deconv3(x4)
+        x, y = inputs
 
-        return x5
+        x1 = Concatenate()([x, y])
+        x2 = self.dense(x1)
+        x3 = Reshape((7,7,32))(x2)
+        x4 = self.deconv1(x3)
+        x5 = self.deconv2(x4)
+        x6 = self.deconv3(x5)
+
+        return x6
 
 class PuVAE(Model):
     def __init__(self, latent_dim=32, **kwargs):
@@ -65,7 +71,8 @@ class PuVAE(Model):
         self.decoder = Decoder()
 
     def call(self, inputs):
+        x, y = inputs
         #z_mean, z_log_var, z = self.encoder(inputs) <---- might come in handy later
-        _, _, z = self.encoder(inputs)
-        reconstructions = self.decoder(z)
+        _, _, z = self.encoder([x, y])
+        reconstructions = self.decoder([z, y])
         return reconstructions
