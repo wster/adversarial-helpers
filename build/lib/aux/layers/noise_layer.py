@@ -10,8 +10,10 @@ class Noise(Layer):
         super(Noise, self).__init__(**kwargs)
 
     def build(self, input_shape):
-        shape_as_list = [60000].append(list(self.shape))
-        shape = tuple(shape_as_list)
+        shape = list(self.shape)
+        shape.insert(0, 60000)
+        shape = tuple(shape)
+
         self.noise = K.random_uniform(shape=shape, minval=self.minval, maxval=self.maxval)
         super(Noise, self).build(input_shape)
 
