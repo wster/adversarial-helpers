@@ -47,7 +47,7 @@ class Decoder(Layer):
         self.dense = Dense(7*7*32, activation='relu')
         self.deconv1 = Conv2DTranspose(64, (3,3), strides=2, padding='same', activation='relu')
         self.deconv2 = Conv2DTranspose(32, (3,3), strides=2, padding='same', activation='relu')
-        self.deconv3 = Conv2DTranspose(1, (3,3), padding='same', activation='sigmoid')
+        self.deconv3 = Conv2DTranspose(1, (3,3), padding='same', activation='relu') # should be sigmoid but results in nan
 
     def call(self, inputs):
         x1 = self.dense(inputs)
