@@ -75,7 +75,7 @@ class PuVAE(Model):
         z_mean, z_log_var, z = self.encoder([x, y])
         reconstructions = self.decoder([z, y])
 
-        kl_loss = K.square(z_mean) + K.square(z_log_var) - K.log(K.square(z_log_var) - 1)
-        self.add_loss(kl_loss)
+        #kl_loss = K.square(z_mean) + K.square(z_log_var) - K.log(K.square(z_log_var) - 1)
+        #self.add_loss(kl_loss)
 
         return (z_mean, z_log_var, reconstructions)
