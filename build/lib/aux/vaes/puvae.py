@@ -72,7 +72,6 @@ class PuVAE(Model):
 
     def call(self, inputs):
         x, y = inputs
-        #z_mean, z_log_var, z = self.encoder(inputs) <---- might come in handy later
-        _, _, z = self.encoder([x, y])
+        z_mean, z_log_var, z = self.encoder([x, y])
         reconstructions = self.decoder([z, y])
-        return reconstructions
+        return (z_mean, z_log_var, reconstructions)
