@@ -2,7 +2,7 @@ from tensorflow.keras import backend as K
 from tensorflow.keras.layers import Layer
 
 class Noise(Layer):
-    def __init__(self, minval, maxval, shape, **kwargs):
+    def __init__(self, minval, maxval, **kwargs):
         self.minval = minval
         self.maxval = maxval
         super(Noise, self).__init__(**kwargs)
