@@ -1,7 +1,7 @@
 from tensorflow.keras import backend as K
 from tensorflow.keras.layers import Input, Layer, Dense, Conv2D, Flatten, Conv2DTranspose, Reshape, Concatenate
 from tensorflow.keras.models import Model
-from tensorflow.keras.losses import mse
+from tensorflow.keras.losses import mean_squared_error
 
 class Sampling(Layer):
     def call(self, inputs):
@@ -79,6 +79,10 @@ class PuVAE(Model):
         if self.use_kl_loss:
             #kl_loss = K.mean(K.square(z_mean)) + K.mean(K.square(z_log_var)) - K.log(K.mean(K.square(z_log_var)) - 1)
             #self.add_loss(kl_loss)
-            self.add_loss(mse(x, reconstructions))
+            print("Upcoming...")
+            loss = mean_squared_error(x, reconstructions)
+            print("Loss:", loss)
+            self.add_loss(loss)
+            print("Added loss")
 
         return (z_mean, z_log_var, reconstructions)
