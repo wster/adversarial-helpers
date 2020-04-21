@@ -6,6 +6,7 @@ class Noise(Layer):
     def __init__(self, minval, maxval, shape, **kwargs):
         self.minval = minval
         self.maxval = maxval
+        self.shape = shape
         super(Noise, self).__init__(**kwargs)
 
     def build(self, input_shape):
