@@ -10,6 +10,7 @@ aux/aes/dense_ae.py
 aux/benchmark/__init__.py
 aux/benchmark/attacks.py
 aux/classifiers/__init__.py
+aux/classifiers/cifar10_classifier.py
 aux/classifiers/mnist_classifier.py
 aux/datasets/__init__.py
 aux/datasets/cifar10.py

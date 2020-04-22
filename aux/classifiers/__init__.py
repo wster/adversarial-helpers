@@ -1,1 +1,2 @@
 from .mnist_classifier import MNISTClassifier
+from .cifar10_classifier import CIFAR10Classifier
