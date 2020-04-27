@@ -28,6 +28,8 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
         batch_images = images[i*batch_size:(i+1)*batch_size] if not last else images[i*batch_size:]
         batch_labels = labels[i*batch_size:(i+1)*batch_size] if not last else labels[i*batch_size:]
 
+        print("Batch is {} large".format(len(batch_images)))
+
         # Report robustness accuracy
         _, imgs, successes = attack(fmodel, batch_images, batch_labels, epsilons=epsilons)
         successes = successes.numpy()
