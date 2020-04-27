@@ -12,7 +12,8 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
     images, labels = tf.convert_to_tensor(images, dtype_hint=tf.float32), tf.convert_to_tensor(labels, dtype_hint=tf.int64)
     fmodel = TensorFlowModel(model, bounds=bounds)
 
-    print("Clean accuracy:", accuracy(fmodel, images, labels))
+    #print("Clean accuracy:", accuracy(fmodel, images, labels))
+    print("Clean accuracy:", model.evaluate(images, labels))
     print("")
 
     outcomes = {}
