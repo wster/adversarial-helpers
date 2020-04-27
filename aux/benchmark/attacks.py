@@ -12,7 +12,6 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
     images, labels = tf.convert_to_tensor(images, dtype_hint=tf.float32), tf.convert_to_tensor(labels, dtype_hint=tf.int64)
     fmodel = TensorFlowModel(model, bounds=bounds)
 
-    #print("Clean accuracy:", accuracy(fmodel, images, labels))
     print("Clean accuracy:", model.evaluate(images, labels)[1])
     print("")
 
@@ -28,8 +27,6 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
         batch_images = images[i*batch_size:(i+1)*batch_size] if not last else images[i*batch_size:]
         batch_labels = labels[i*batch_size:(i+1)*batch_size] if not last else labels[i*batch_size:]
 
-        print("Batch is {} large".format(len(batch_images)))
-        print("Running attack {} of {}".format(i, num_batches))
         # Report robustness accuracy
         _, imgs, successes = attack(fmodel, batch_images, batch_labels, epsilons=epsilons)
         successes = successes.numpy()
