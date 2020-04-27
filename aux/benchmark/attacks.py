@@ -22,6 +22,8 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
     batch_size = batch_size if batch_size is not None else len(images)
     num_batches = ceil(len(images) / batch_size)
 
+    print_progress(0, num_batches)
+
     for i in range(num_batches):
         last = i == num_batches - 1
         batch_images = images[i*batch_size:(i+1)*batch_size] if not last else images[i*batch_size:]
@@ -45,6 +47,8 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
             outcome = (num_successes, num_attacks)
             outcome_so_far = outcomes[eps]
             outcomes[eps] = tuple(map(sum, zip(outcome, outcome_so_far)))
+        
+        print_progress(i, num_batches)
 
     for eps in epsilons:
         num_successes, num_attacks = outcomes[eps]
@@ -89,3 +93,25 @@ def basic_iterative_attack(model, images, labels, batch_size=None, epsilons=[0.0
     print("Performing Basic Iterative Attack...")
     attack = fa.LinfBasicIterativeAttack()
     return base(attack, model, images, labels, batch_size, epsilons, bounds)
+
+def print_progress(iteration, total, prefix='', suffix='', decimals=1, bar_length=100):
+    """
+    Call in a loop to create terminal progress bar
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : positive number of decimals in percent complete (Int)
+        bar_length  - Optional  : character length of bar (Int)
+    """
+    str_format = "{0:." + str(decimals) + "f}"
+    percents = str_format.format(100 * (iteration / float(total)))
+    filled_length = int(round(bar_length * iteration / float(total)))
+    bar = '█' * filled_length + '-' * (bar_length - filled_length)
+
+    sys.stdout.write('\r%s |%s| %s%s %s' % (prefix, bar, percents, '%', suffix)),
+
+    if iteration == total:
+        sys.stdout.write('\n')
+    sys.stdout.flush()
