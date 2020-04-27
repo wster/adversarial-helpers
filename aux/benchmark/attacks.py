@@ -13,7 +13,7 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
     fmodel = TensorFlowModel(model, bounds=bounds)
 
     #print("Clean accuracy:", accuracy(fmodel, images, labels))
-    print("Clean accuracy:", model.evaluate(images, labels))
+    print("Clean accuracy:", model.evaluate(images, labels)[1])
     print("")
 
     outcomes = {}
