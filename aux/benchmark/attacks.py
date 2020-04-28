@@ -1,7 +1,7 @@
 import tensorflow as tf
 import foolbox.attacks as fa
 import numpy as np
-import tqdm
+from tqdm import tqdm
 
 from foolbox import TensorFlowModel, accuracy, samples
 from tensorflow.keras.utils import to_categorical
