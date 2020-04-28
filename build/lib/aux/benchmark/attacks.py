@@ -95,11 +95,10 @@ def basic_iterative_attack(model, images, labels, batch_size=None, epsilons=[0.0
     attack = fa.LinfBasicIterativeAttack()
     return base(attack, model, images, labels, batch_size, epsilons, bounds)
 
-def show_progress(iteration, total, size=60):
-    file = sys.stdout
-        
-    x = int(size*iteration/total)
-    file.write("%s[%s%s] %i/%i\r" % ("Attacking:", "="*x, "."*(size-x), iteration, total))
-    file.flush()        
-    file.write("\n")
-    file.flush()
+def show_progress(iteration, total):
+    progress = iteration / total
+    number_of_symbols = ceil(progress*40)
+
+    sys.stdout.write('\r')
+    sys.stdout.write("[%-40s] %d%%" % ('='*number_of_symbols, progress*100))
+    sys.stdout.flush()
