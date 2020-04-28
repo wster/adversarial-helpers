@@ -1,3 +1,6 @@
+import warnings
+warnings.filterwarnings("ignore")
+
 import tensorflow as tf
 import foolbox.attacks as fa
 import numpy as np
