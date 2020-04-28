@@ -1,7 +1,7 @@
 import tensorflow as tf
 import foolbox.attacks as fa
 import numpy as np
-import sys
+import tqdm
 
 from foolbox import TensorFlowModel, accuracy, samples
 from tensorflow.keras.utils import to_categorical
@@ -23,9 +23,7 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
     batch_size = batch_size if batch_size is not None else len(images)
     num_batches = ceil(len(images) / batch_size)
 
-    show_progress(0, num_batches)
-
-    for i in range(num_batches):
+    for i in tqdm(range(num_batches)):
         last = i == num_batches - 1
         batch_images = images[i*batch_size:(i+1)*batch_size] if not last else images[i*batch_size:]
         batch_labels = labels[i*batch_size:(i+1)*batch_size] if not last else labels[i*batch_size:]
@@ -48,8 +46,6 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
             outcome = (num_successes, num_attacks)
             outcome_so_far = outcomes[eps]
             outcomes[eps] = tuple(map(sum, zip(outcome, outcome_so_far)))
-        
-        show_progress(i, num_batches)
 
     for eps in epsilons:
         num_successes, num_attacks = outcomes[eps]
@@ -94,11 +90,3 @@ def basic_iterative_attack(model, images, labels, batch_size=None, epsilons=[0.0
     print("Performing Basic Iterative Attack...")
     attack = fa.LinfBasicIterativeAttack()
     return base(attack, model, images, labels, batch_size, epsilons, bounds)
-
-def show_progress(iteration, total):
-    progress = iteration / total
-    number_of_symbols = ceil(progress*40)
-
-    sys.stdout.write('\r')
-    sys.stdout.write("[%-40s] %d%%" % ('='*number_of_symbols, progress*100))
-    sys.stdout.flush()
