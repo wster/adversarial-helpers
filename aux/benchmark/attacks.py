@@ -1,10 +1,6 @@
-import warnings
-warnings.filterwarnings("ignore")
-
 import tensorflow as tf
 import foolbox.attacks as fa
 import numpy as np
-from tqdm import tqdm
 
 from foolbox import TensorFlowModel, accuracy, samples
 from tensorflow.keras.utils import to_categorical
@@ -26,12 +22,11 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
     batch_size = batch_size if batch_size is not None else len(images)
     num_batches = ceil(len(images) / batch_size)
 
-    for i in tqdm(range(num_batches)):
+    for i in range(num_batches):
         last = i == num_batches - 1
         batch_images = images[i*batch_size:(i+1)*batch_size] if not last else images[i*batch_size:]
         batch_labels = labels[i*batch_size:(i+1)*batch_size] if not last else labels[i*batch_size:]
 
-        # Report robustness accuracy
         _, imgs, successes = attack(fmodel, batch_images, batch_labels, epsilons=epsilons)
         successes = successes.numpy()
 
