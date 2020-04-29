@@ -87,7 +87,6 @@ def basic_iterative_attack(model, images, labels, batch_size=None, epsilons=[0.0
 
     print("Performing Basic Iterative Attack...")
     attack = fa.LinfBasicIterativeAttack()
-<<<<<<< HEAD
     return base(attack, model, images, labels, epsilons, bounds)
 
 
