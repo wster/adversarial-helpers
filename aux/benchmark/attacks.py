@@ -69,3 +69,55 @@ def basic_iterative_attack(model, images, labels, epsilons=[0.03, 0.1, 0.3], bou
     print("Performing Basic Iterative Attack...")
     attack = fa.LinfBasicIterativeAttack()
     return base(attack, model, images, labels, epsilons, bounds)
+
+
+def cw_attack(model, images, labels, epsilons=[0.03, 0.1, 0.3], bounds=(0,1)):
+    """ Evaluates robustness against an L2 CW attack .
+    Args:
+        model : Tensorflow model to evaluate.
+        images : Clean images that will be turned into adversarial examples
+        labels : Labels of the clean images
+    """
+
+    print("Performing CW Attack...")
+    attack = fa.L2CarliniWagnerAttack()
+    return base(attack, model, images, labels, epsilons, bounds)
+
+
+
+### JUST FOR TESTING ###
+from tensorflow.keras.models import Model, Sequential
+from tensorflow.keras.layers import Input, Dense, Conv2D, MaxPool2D, Flatten
+# Download mnist data and split into train and test sets
+(x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+
+
+# Preprocess data
+x_train = x_train.astype('float32') / 255
+x_train = np.expand_dims(x_train, axis=-1)
+x_test = x_test.astype('float32') / 255
+x_test = np.expand_dims(x_test, axis=-1)
+
+y_train = to_categorical(y_train)
+y_test = to_categorical(y_test)
+
+def define_model():
+    model = Sequential([
+            Input(shape=(28,28,1)),
+            Conv2D(32, (5,5), activation='relu', padding='same'),
+            MaxPool2D(),
+            Conv2D(64, (5,5), activation='relu', padding='same'),
+            MaxPool2D(),
+            Flatten(),
+            Dense(1024, activation='relu'),
+            Dense(10, activation='softmax')
+    ])
+  
+    model.compile(optimizer='adam',
+                  loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                  metrics=['accuracy'])
+    
+    model.fit(x_train, y_train, epochs=10)
+    return model
+
+cw_attack(define_model(), x_test, y_test)
