@@ -87,7 +87,7 @@ def basic_iterative_attack(model, images, labels, batch_size=None, epsilons=[0.0
 
     print("Performing Basic Iterative Attack...")
     attack = fa.LinfBasicIterativeAttack()
-    return base(attack, model, images, labels, epsilons, bounds)
+    return base(attack, model, images, labels, batch_size, epsilons, bounds)
 
 
 def cw_attack(model, images, labels, batch_size=None, epsilons=[0.03, 0.1, 0.3], bounds=(0,1)):
@@ -101,3 +101,4 @@ def cw_attack(model, images, labels, batch_size=None, epsilons=[0.03, 0.1, 0.3],
     print("Performing CW Attack...")
     attack = fa.L2CarliniWagnerAttack()
     return base(attack, model, images, labels, batch_size, epsilons, bounds)
+    
