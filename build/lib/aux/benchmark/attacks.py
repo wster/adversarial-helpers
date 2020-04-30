@@ -88,3 +88,17 @@ def basic_iterative_attack(model, images, labels, batch_size=None, epsilons=[0.0
     print("Performing Basic Iterative Attack...")
     attack = fa.LinfBasicIterativeAttack()
     return base(attack, model, images, labels, batch_size, epsilons, bounds)
+
+
+def cw_attack(model, images, labels, batch_size=None, epsilons=[0.03, 0.1, 0.3], bounds=(0,1)):
+    """ Evaluates robustness against an L2 CW attack .
+    Args:
+        model : Tensorflow model to evaluate.
+        images : Clean images that will be turned into adversarial examples
+        labels : Labels of the clean images
+    """
+
+    print("Performing CW Attack...")
+    attack = fa.L2CarliniWagnerAttack()
+    return base(attack, model, images, labels, batch_size, epsilons, bounds)
+    
