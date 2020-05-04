@@ -12,7 +12,8 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
     images, labels = tf.convert_to_tensor(images, dtype_hint=tf.float32), tf.convert_to_tensor(labels, dtype_hint=tf.int64)
     fmodel = TensorFlowModel(model, bounds=bounds)
 
-    print("Clean accuracy:", model.evaluate(images, labels)[1])
+    print("Clean accuracy (model.evaluate):", model.evaluate(images, labels)[1])
+    print("Clean accuracy (foolbox accuracy method):", accuracy(fmodel, images, labels))
     print("")
 
     outcomes = {}
@@ -45,9 +46,9 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
             outcome_so_far = outcomes[eps]
             outcomes[eps] = tuple(map(sum, zip(outcome, outcome_so_far)))
 
-    for eps in epsilons:
-        num_successes, num_attacks = outcomes[eps]
-        print("For epsilon = {}, there were {}/{} successful attacks (robustness = {})".format(epsilons[i], num_successes, num_attacks, round(1.0 - num_successes / num_attacks, 2)))
+            for eps in epsilons:
+                num_successes, num_attacks = outcomes[eps]
+                print("For epsilon = {}, there were {}/{} successful attacks (robustness = {})".format(epsilons[i], num_successes, num_attacks, round(1.0 - num_successes / num_attacks, 2)))
     
     return success_imgs, success_labels 
 
