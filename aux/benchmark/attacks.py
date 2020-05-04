@@ -33,22 +33,22 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
 
         num_attacks = len(batch_images)
 
-        for i in range(len(epsilons)):
-            success_idxs = successes[i] == 1
+        for j in range(len(epsilons)):
+            success_idxs = successes[j] == 1
 
-            success_imgs.append(imgs[i][success_idxs])
+            success_imgs.append(imgs[j][success_idxs])
             categorical_labels = to_categorical(batch_labels.numpy()[success_idxs])
             success_labels.append(categorical_labels)
 
-            eps = epsilons[i]
+            eps = epsilons[j]
             num_successes = np.count_nonzero(success_idxs)
             outcome = (num_successes, num_attacks)
             outcome_so_far = outcomes[eps]
             outcomes[eps] = tuple(map(sum, zip(outcome, outcome_so_far)))
 
-            for eps in epsilons:
-                num_successes, num_attacks = outcomes[eps]
-                print("For epsilon = {}, there were {}/{} successful attacks (robustness = {})".format(epsilons[i], num_successes, num_attacks, round(1.0 - num_successes / num_attacks, 2)))
+    for eps in epsilons:
+        num_successes, num_attacks = outcomes[eps]
+        print("For epsilon = {}, there were {}/{} successful attacks (robustness = {})".format(eps, num_successes, num_attacks, round(1.0 - num_successes / num_attacks, 3)))
     
     return success_imgs, success_labels 
 
