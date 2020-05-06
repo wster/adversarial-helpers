@@ -46,7 +46,7 @@ def adv_fit(model, images, labels, nb_epochs=10,
         for (x, y) in zip(x_train, y_train):
             # Reshape
             x = tf.reshape(x, shape=(1, 28, 28))
-            if loss_object is loss_object=tf.losses.SparseCategoricalCrossentropy(from_logits=True):
+            if loss_object is tf.losses.SparseCategoricalCrossentropy(from_logits=True):
                 y = tf.reshape(y, shape=(1,))
             else:
                 y = tf.reshape(y, shape=(10,))
