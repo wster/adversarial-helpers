@@ -4,7 +4,8 @@ import foolbox.attacks as fa
 
 def adv_fit(model, images, labels, nb_epochs=10, 
             loss_object=tf.losses.SparseCategoricalCrossentropy(from_logits=True),
-            optimizer=tf.optimizers.Adam(learning_rate=0.001)): 
+            optimizer=tf.optimizers.Adam(learning_rate=0.001),
+            cond_vae=False): 
 
     """ Performs adversarial training and returns trained model. Use this instead of Keras "fit" method.
         Trains ONLY on adversarial examples.
@@ -16,6 +17,7 @@ def adv_fit(model, images, labels, nb_epochs=10,
         nb_epochs : Number of training epochs
         loss_object : Tensorflow loss object
         optimizer : Tensorflow optimizer
+        cond_vae : set True if training a conditional variational autoencoder (multiple training inputs)
     """
 
     # Preprocessing data and setting up Foolbox model
@@ -28,7 +30,10 @@ def adv_fit(model, images, labels, nb_epochs=10,
 
     def train_step(x, y):
         with tf.GradientTape() as tape:
-            predictions = model(x)
+            if cond_vae:
+                predictions = model([x,y])
+            else:
+                predictions = model(x)
             loss = loss_object(y, predictions)
         gradients = tape.gradient(loss, model.trainable_variables)
         optimizer.apply_gradients(zip(gradients, model.trainable_variables))
