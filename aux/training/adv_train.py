@@ -46,7 +46,10 @@ def adv_fit(model, images, labels, nb_epochs=10,
         for (x, y) in zip(x_train, y_train):
             # Reshape
             x = tf.reshape(x, shape=(1, 28, 28))
-            y = tf.reshape(y, shape=(1,))
+            if loss_object is loss_object=tf.losses.SparseCategoricalCrossentropy(from_logits=True):
+                y = tf.reshape(y, shape=(1,))
+            else:
+                y = tf.reshape(y, shape=(10,))
             # Replace clean example with adversarial example for adversarial training
             x_adv, _, _ = fa.LinfPGD()(fmodel, x, y, epsilons=[0.3])
             train_step(x_adv, y)
