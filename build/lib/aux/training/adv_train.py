@@ -51,7 +51,8 @@ def adv_fit(model, images, labels, nb_epochs=10,
             else:
                 y = tf.reshape(y, shape=(10,))
             # Replace clean example with adversarial example for adversarial training
-            x_adv, _, _ = fa.LinfPGD()(fmodel, x, y, epsilons=[0.3])
+            print(y)
+            x_adv, _, _ = fa.LinfPGD()(fmodel, [x,y], y, epsilons=[0.3])
             train_step(x_adv, y)
             progress_bar_train.add(x.shape[0], values=[('loss', train_loss.result())])
 
