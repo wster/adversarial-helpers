@@ -107,6 +107,7 @@ def cw_attack(model, images, labels, batch_size=None, epsilons=[0.03, 0.1, 0.3],
 def cvae_pgd(model, x, y, epsilon=0.3, batch_size=None, training=False):
     """ 
         Returns adversarial examples (created from x) and robustness (#unsuccessful attacks / #attacks).
+        Uses 40 steps and random restart.
 
         Args:
             model : CVAE model that should output [z_mean, z_log_var, reconstructions, outputs].
