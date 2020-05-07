@@ -104,12 +104,13 @@ def cw_attack(model, images, labels, batch_size=None, epsilons=[0.03, 0.1, 0.3],
     return base(attack, model, images, labels, batch_size, epsilons, bounds)
     
 
-def cvae_pgd(model, x, y, epsilon=0.3, batch_size=None):
+def cvae_pgd(model, x, y, epsilon=0.3, batch_size=None, training=False):
     """ 
         Returns adversarial examples (created from x) and robustness (#unsuccessful attacks / #attacks).
 
         Args:
             model : CVAE model that should output [z_mean, z_log_var, reconstructions, outputs].
+            training : Set to True if using the method for adversarial training.
     """
 
     steps = 40
@@ -127,7 +128,10 @@ def cvae_pgd(model, x, y, epsilon=0.3, batch_size=None):
     def gradients(x, y):
         with tf.GradientTape() as tape:
             tape.watch(x)
-            _, _, _, preds = model([x,y]) # <-- because cvae
+            if training:
+                _, _, _, preds = model([x,y])
+            else:
+                preds = model(x)
             loss = loss_fn(y, preds)
         gradients = tape.gradient(loss, x)
         return gradients
@@ -152,7 +156,10 @@ def cvae_pgd(model, x, y, epsilon=0.3, batch_size=None):
                 batch_advs = project(batch_advs, batch_images)
                 batch_advs = tf.clip_by_value(batch_advs, model_lb, model_ub) 
             # Add to num_correct_preds
-            _, _, _, preds = model([batch_images, batch_labels])
+            if training:
+                _, _, _, preds = model([batch_images, batch_labels])
+            else:
+                preds = model(batch_images)
             y_preds = argmax(preds, axis=1)
             y_true = argmax(batch_labels, axis=1)
             num_correct_preds += np.count_nonzero(y_preds == y_true)
