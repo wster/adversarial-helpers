@@ -103,3 +103,61 @@ def cw_attack(model, images, labels, batch_size=None, epsilons=[0.03, 0.1, 0.3],
     attack = fa.L2CarliniWagnerAttack()
     return base(attack, model, images, labels, batch_size, epsilons, bounds)
     
+
+def cvae_pgd(model, x, y, epsilon=0.3, batch_size=None):
+    """ 
+        Returns adversarial examples (created from x) and robustness (#unsuccessful attacks / #attacks).
+
+        Args:
+            model : CVAE model that should output [z_mean, z_log_var, reconstructions, outputs].
+    """
+
+    steps = 40
+    rel_stepsize = 0.01/0.3
+    stepsize = rel_stepsize * epsilon
+    model_lb, model_ub = 0, 1 # model bounds
+    loss_fn = categorical_crossentropy
+    
+    def get_random_start(x):
+        return x + tf.random.uniform(x.shape, -epsilon, epsilon)
+
+    def project(x_adv, x):
+        return x + tf.clip_by_value(x_adv - x, -epsilon, epsilon)
+
+    def gradients(x, y):
+        with tf.GradientTape() as tape:
+            tape.watch(x)
+            _, _, _, preds = model([x,y]) # <-- because cvae
+            loss = loss_fn(y, preds)
+        gradients = tape.gradient(loss, x)
+        return gradients
+
+    def pgd(model, x, y, batch_size):
+        num_correct_preds = 0
+        num_examples = x.shape[0]
+        batch_size = batch_size if batch_size is not None else num_examples
+        num_batches = ceil(num_examples / batch_size)
+        
+        for i in range(num_batches):
+            last = i == num_batches - 1
+            batch_images = x[i*batch_size:(i+1)*batch_size] if not last else x[i*batch_size:]
+            batch_labels = y[i*batch_size:(i+1)*batch_size] if not last else y[i*batch_size:]
+
+            batch_advs = get_random_start(batch_images)
+            batch_advs = tf.clip_by_value(batch_advs, model_lb, model_ub)
+            for _ in range(steps): 
+                grads = gradients(batch_advs, batch_labels)
+                sign_grads = tf.sign(grads)
+                batch_advs = batch_advs + stepsize * sign_grads
+                batch_advs = project(batch_advs, batch_images)
+                batch_advs = tf.clip_by_value(batch_advs, model_lb, model_ub) 
+            # Add to num_correct_preds
+            _, _, _, preds = model([batch_images, batch_labels])
+            y_preds = argmax(preds, axis=1)
+            y_true = argmax(batch_labels, axis=1)
+            num_correct_preds += np.count_nonzero(y_preds == y_true)
+
+        robustness = num_correct_preds / num_examples
+        return batch_advs, robustness
+
+    return pgd(model, x, y, batch_size)
