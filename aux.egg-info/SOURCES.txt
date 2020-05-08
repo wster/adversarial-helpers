@@ -17,7 +17,13 @@ aux/datasets/cifar10.py
 aux/datasets/fmnist.py
 aux/datasets/mnist.py
 aux/layers/__init__.py
+aux/layers/best_reconstruction.py
+aux/layers/blur.py
+aux/layers/contrast.py
+aux/layers/noise.py
 aux/layers/noise_layer.py
+aux/layers/prediction.py
+aux/layers/rotate.py
 aux/layers/rotate_layer.py
 aux/training/__init__.py
 aux/training/adv_train.py
