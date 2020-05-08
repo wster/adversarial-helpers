@@ -25,6 +25,8 @@ aux/layers/noise_layer.py
 aux/layers/prediction.py
 aux/layers/rotate.py
 aux/layers/rotate_layer.py
+aux/losses/__init__.py
+aux/losses/logit_losses.py
 aux/training/__init__.py
 aux/training/adv_train.py
 aux/vaes/__init__.py
