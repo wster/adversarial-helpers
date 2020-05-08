@@ -36,7 +36,7 @@ class CIFAR10Classifier(Model):
             Flatten(),
 
             Dense(32, activation='relu'),
-            Dense(10, activation='softmax')
+            Dense(10)
         ])
 
     def call(self, inputs):
