@@ -15,12 +15,11 @@ import eagerpy as ep
 
 class CustomLossLinfPGDAttack(LinfProjectedGradientDescentAttack):
     def __init__(self, loss_fn, **kwargs):
-        super(CustomLossLinfPGDAttack, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.loss_fn = loss_fn
-    
+
     def get_loss_fn(self, model: Model, labels: ep.Tensor) -> Callable[[ep.Tensor], ep.Tensor]:
         return self.loss_fn
-        
 
 
 def base(attack, model, images, labels, batch_size, epsilons, bounds):
