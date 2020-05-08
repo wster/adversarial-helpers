@@ -4,7 +4,7 @@ import numpy as np
 
 from foolbox import TensorFlowModel, accuracy, samples
 from tensorflow.keras.utils import to_categorical
-from tensorflow.keras.losses import sparse_categorical_crossentropy
+from tensorflow.keras.losses import categorical_crossentropy, sparse_categorical_crossentropy
 from tensorflow.math import reduce_mean, reduce_sum, square, exp, log, add, subtract, multiply, argmax, count_nonzero
 from math import ceil
 
