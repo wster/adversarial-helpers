@@ -8,6 +8,36 @@ from tensorflow.keras.losses import categorical_crossentropy
 from tensorflow.math import reduce_mean, reduce_sum, square, exp, log, add, subtract, multiply, argmax, count_nonzero
 from math import ceil
 
+from foolbox.attacks import LinfProjectedGradientDescentAttack
+from foolbox.models.base import Model
+from typing import Optional, Callable
+import eagerpy as ep
+
+class CustomLossLinfPGDAttack(LinfProjectedGradientDescentAttack):
+    def __init__(
+        self,
+        *,
+        rel_stepsize: float = 0.01 / 0.3,
+        abs_stepsize: Optional[float] = None,
+        steps: int = 40,
+        random_start: bool = True,
+        loss_fn
+    ):
+        super().__init__(
+            rel_stepsize=rel_stepsize,
+            abs_stepsize=abs_stepsize,
+            steps=steps,
+            random_start=random_start,
+        )
+        
+        self.loss_fn = loss_fn
+    
+    def get_loss_fn(self, model: Model, labels: ep.Tensor) -> Callable[[ep.Tensor], ep.Tensor]:
+        return loss_fn
+
+
+
+
 def base(attack, model, images, labels, batch_size, epsilons, bounds):
     # Preprocess test data to feed to Foolbox
     labels = np.argmax(labels, axis=1) # From categorical to raw labels
@@ -54,7 +84,7 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
     
     return success_imgs, success_labels 
 
-def pgd_attack(model, images, labels, batch_size=None, epsilons=[0.03, 0.1, 0.3], bounds=(0,1)):
+def pgd_attack(model, images, labels, loss_fn=categorical_crossentropy, batch_size=None, epsilons=[0.03, 0.1, 0.3], bounds=(0,1)):
     """ Evaluates robustness against an L-infinity PGD attack with random restart and 40 steps.
     Args:
         model : Tensorflow model to evaluate.
@@ -63,8 +93,10 @@ def pgd_attack(model, images, labels, batch_size=None, epsilons=[0.03, 0.1, 0.3]
     """
 
     print("Performing PGD attack...")
-    attack = fa.LinfPGD()
+    attack = CustomLossLinfPGDAttack(loss_fn)
     return base(attack, model, images, labels, batch_size, epsilons, bounds)
+    #attack = fa.LinfPGD()
+    #return base(attack, model, images, labels, batch_size, epsilons, bounds)
 
 
 def fgsm_attack(model, images, labels, batch_size=None, epsilons=[0.03, 0.1, 0.3], bounds=(0,1)):
@@ -106,7 +138,7 @@ def cw_attack(model, images, labels, batch_size=None, epsilons=[0.03, 0.1, 0.3],
     return base(attack, model, images, labels, batch_size, epsilons, bounds)
     
 
-def cvae_pgd(model, x, y, loss_fn=categorical_crossentropy, epsilon=0.3, batch_size=None, training=False):
+def cvae_pgd(model, images, labels, loss_fn=categorical_crossentropy, epsilon=0.3, batch_size=None, training=False):
     """ 
         Returns adversarial examples (created from x) and robustness (#unsuccessful attacks / #attacks).
         Uses 40 steps and random restart.
@@ -172,4 +204,4 @@ def cvae_pgd(model, x, y, loss_fn=categorical_crossentropy, epsilon=0.3, batch_s
 
         return batch_advs, robustness
 
-    return pgd(model, x, y, batch_size)
+    return pgd(model, images, labels, batch_size)
