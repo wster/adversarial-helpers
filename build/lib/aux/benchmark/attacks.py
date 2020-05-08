@@ -9,9 +9,10 @@ from tensorflow.math import reduce_mean, reduce_sum, square, exp, log, add, subt
 from math import ceil
 
 from foolbox.attacks import LinfProjectedGradientDescentAttack
-from foolbox.models.base import Model
+from foolbox.models.base import Model as FModel
 from typing import Optional, Callable
 import eagerpy as ep
+from eagerpy.tensor import TensorFlowTensor
 
 class CustomLossLinfPGDAttack(LinfProjectedGradientDescentAttack):
     def __init__(self, loss_fn, **kwargs):
