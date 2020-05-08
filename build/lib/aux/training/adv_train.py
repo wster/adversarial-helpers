@@ -96,7 +96,7 @@ def cvae_adv_fit(model, images, labels, nb_epochs=10,
 
     # Train model with adversarial training
     for epoch in range(nb_epochs):
-        print("EPOCH BEGINS")
+        print("EPOCH {} BEGINS".format(epoch))
         progress = 0
         for i in range(num_batches):
             last = i == num_batches - 1
