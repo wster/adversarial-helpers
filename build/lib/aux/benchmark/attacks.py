@@ -33,7 +33,7 @@ class CustomLossLinfPGDAttack(LinfProjectedGradientDescentAttack):
         self.loss_fn = loss_fn
     
     def get_loss_fn(self, model: Model, labels: ep.Tensor) -> Callable[[ep.Tensor], ep.Tensor]:
-        return loss_fn
+        return self.loss_fn
 
 
 
