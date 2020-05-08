@@ -159,9 +159,9 @@ def cvae_pgd(model, x, y, loss_fn=categorical_crossentropy, epsilon=0.3, batch_s
                 batch_advs = tf.clip_by_value(batch_advs, model_lb, model_ub) 
             # Add to num_correct_preds
             if training:
-                _, _, _, preds = model([batch_images, batch_labels])
+                _, _, _, preds = model([batch_advs, batch_labels])
             else:
-                preds = model(batch_images)
+                preds = model(batch_advs)
             y_preds = argmax(preds, axis=1)
             y_true = argmax(batch_labels, axis=1)
             num_correct_preds += np.count_nonzero(y_preds == y_true)
