@@ -139,6 +139,7 @@ def cvae_pgd(model, x, y, loss_fn=categorical_crossentropy, epsilon=0.3, batch_s
         return gradients
 
     def pgd(model, x, y, batch_size):
+        print("Performing PGD attack...")
         num_correct_preds = 0
         num_examples = x.shape[0]
         batch_size = batch_size if batch_size is not None else num_examples
@@ -167,6 +168,8 @@ def cvae_pgd(model, x, y, loss_fn=categorical_crossentropy, epsilon=0.3, batch_s
             num_correct_preds += np.count_nonzero(y_preds == y_true)
 
         robustness = num_correct_preds / num_examples
+        print("For epsilon = {}, there were {}/{} successful attacks (robustness = {})".format(epsilon, num_examples - num_correct_preds, num_examples, robustness))
+
         return batch_advs, robustness
 
     return pgd(model, x, y, batch_size)
