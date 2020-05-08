@@ -18,8 +18,13 @@ class CustomLossLinfPGDAttack(LinfProjectedGradientDescentAttack):
         super().__init__(**kwargs)
         self.loss_fn = loss_fn
 
-    def get_loss_fn(self, model: Model, labels: ep.Tensor) -> Callable[[ep.Tensor], ep.Tensor]:
-        return self.loss_fn
+    def get_loss_fn(self, model: FModel, labels: ep.Tensor) -> Callable[[ep.Tensor], ep.Tensor]:
+        def loss_fn(inputs: ep.Tensor) -> ep.Tensor:
+            logits = model(inputs)
+            loss = self.loss_fn(labels.raw, logits.raw)
+            return TensorFlowTensor(tf.reduce_sum(loss))
+            #return self.loss_fn(labels.raw, logits.raw)
+        return loss_fn
 
 
 def base(attack, model, images, labels, batch_size, epsilons, bounds):
@@ -68,7 +73,7 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
     
     return success_imgs, success_labels 
 
-def pgd_attack(model, images, labels, loss_fn=categorical_crossentropy, batch_size=None, epsilons=[0.03, 0.1, 0.3], bounds=(0,1)):
+def pgd_attack(model, images, labels, loss_fn=sparse_categorical_crossentropy, batch_size=None, epsilons=[0.03, 0.1, 0.3], bounds=(0,1)):
     """ Evaluates robustness against an L-infinity PGD attack with random restart and 40 steps.
     Args:
         model : Tensorflow model to evaluate.
