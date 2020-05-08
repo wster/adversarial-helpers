@@ -4,6 +4,7 @@ import numpy as np
 
 from foolbox import TensorFlowModel, accuracy, samples
 from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.losses import categorical_crossentropy
 from math import ceil
 
 def base(attack, model, images, labels, batch_size, epsilons, bounds):
@@ -104,7 +105,7 @@ def cw_attack(model, images, labels, batch_size=None, epsilons=[0.03, 0.1, 0.3],
     return base(attack, model, images, labels, batch_size, epsilons, bounds)
     
 
-def cvae_pgd(model, x, y, epsilon=0.3, batch_size=None, training=False):
+def cvae_pgd(model, x, y, loss_fn=categorical_crossentropy, epsilon=0.3, batch_size=None, training=False):
     """ 
         Returns adversarial examples (created from x) and robustness (#unsuccessful attacks / #attacks).
         Uses 40 steps and random restart.
@@ -118,7 +119,6 @@ def cvae_pgd(model, x, y, epsilon=0.3, batch_size=None, training=False):
     rel_stepsize = 0.01/0.3
     stepsize = rel_stepsize * epsilon
     model_lb, model_ub = 0, 1 # model bounds
-    loss_fn = categorical_crossentropy
     
     def get_random_start(x):
         return x + tf.random.uniform(x.shape, -epsilon, epsilon)
