@@ -56,7 +56,6 @@ def adv_fit(model, images, labels, nb_epochs=10,
 
 
 def cvae_adv_fit(model, images, labels, nb_epochs=10,
-                loss_fn=tf.losses.SparseCategoricalCrossentropy(from_logits=True),
                 optimizer=tf.optimizers.Adam(learning_rate=0.001),
                 batch_size=None):
 
@@ -68,7 +67,6 @@ def cvae_adv_fit(model, images, labels, nb_epochs=10,
         images : Clean training images that will be used for adversarial training
         labels : Labels of the clean training images
         nb_epochs : Number of training epochs
-        loss_fn : Tensorflow loss object
         optimizer : Tensorflow optimizer
         batch_size : Batch size
     """
@@ -96,7 +94,7 @@ def cvae_adv_fit(model, images, labels, nb_epochs=10,
 
     # Train model with adversarial training
     for epoch in range(nb_epochs):
-        print("EPOCH {} BEGINS".format(epoch))
+        print("EPOCH {} / {} BEGINS".format(epoch+1, nb_epochs))
         progress = 0
         for i in range(num_batches):
             last = i == num_batches - 1
