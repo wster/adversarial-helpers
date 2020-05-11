@@ -40,7 +40,7 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
     outcomes = {}
     for eps in epsilons: outcomes[eps] = (0, 0)
 
-    success_imgs, success_labels = [], []
+    success_imgs = []
     batch_size = batch_size if batch_size is not None else len(images)
     num_batches = ceil(len(images) / batch_size)
 

@@ -15,7 +15,7 @@ class BestReconstruction(Layer):
         images = K.repeat_elements(inputs, self.num_classes, axis=0)
         labels = K.tile(self.eye, [batch_size, 1])
 
-        _, _, reconstructions = self.puvae([images, labels])
+        _, _, reconstructions = self.puvae((images, labels))
         errors = K.mean(K.sqrt(mean_squared_error(images, reconstructions)), axis=(1,2))
         errors = K.reshape(errors, (batch_size, self.num_classes))
 
