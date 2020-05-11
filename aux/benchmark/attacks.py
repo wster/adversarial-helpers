@@ -50,7 +50,7 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
         batch_images = images[i*batch_size:(i+1)*batch_size] if not last else images[i*batch_size:]
         batch_labels = labels[i*batch_size:(i+1)*batch_size] if not last else labels[i*batch_size:]
 
-        _, imgs, successes = attack(fmodel, batch_images, batch_labels, epsilons=epsilons)
+        labels, imgs, successes = attack(fmodel, batch_images, batch_labels, epsilons=epsilons)
         successes = successes.numpy()
 
         num_attacks = len(batch_images)
@@ -67,13 +67,15 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
             success_labels.append(categorical_labels)
 
             eps = epsilons[j]
-            num_successes = np.count_nonzero(success_idxs)
+            num_adversarial = np.count_nonzero(labels[j] == 10)
+            num_successes = np.count_nonzero(success_idxs) - num_adversarial
             outcome = (num_successes, num_attacks)
             outcome_so_far = outcomes[eps]
             outcomes[eps] = tuple(map(sum, zip(outcome, outcome_so_far)))
 
     for eps in epsilons:
         num_successes, num_attacks = outcomes[eps]
+
         print("For epsilon = {}, there were {}/{} successful attacks (robustness = {})".format(eps, num_successes, num_attacks, round(1.0 - num_successes / num_attacks, 3)))
     
     return success_imgs, success_labels 
