@@ -11,23 +11,8 @@ from math import ceil
 
 from foolbox.attacks import LinfProjectedGradientDescentAttack
 from foolbox.models.base import Model as FModel
-from foolbox.criteria import Criterion
 from typing import Optional, Callable
 from eagerpy.tensor import TensorFlowTensor
-
-class CustomCriterion(Criterion):
-    def __init__(self, target_labels, **kwargs):
-        super().__init__(**kwargs)
-        self.target_labels = target_labels
-    
-    def __call__(self, perturbed, outputs):
-        preds = np.argmax(outputs.raw, axis=1)
-        true_preds = preds != self.target_labels
-        adv_preds = preds != 10
-        return true_preds & adv_preds     
-
-    def __repr__(self):
-        print("Hej")
 
 class CustomLossLinfPGDAttack(LinfProjectedGradientDescentAttack):
     def __init__(self, loss_fn, **kwargs):
@@ -64,8 +49,7 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
         batch_images = images[i*batch_size:(i+1)*batch_size] if not last else images[i*batch_size:]
         batch_labels = labels[i*batch_size:(i+1)*batch_size] if not last else labels[i*batch_size:]
 
-        criterion = CustomCriterion(batch_labels)
-        _, imgs, successes = attack(fmodel, batch_images, criterion, epsilons=epsilons)
+        _, imgs, successes = attack(fmodel, batch_images, batch_labels, epsilons=epsilons)
         successes = successes.numpy()
 
         num_attacks = len(batch_images)
@@ -89,7 +73,8 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
 
     for i, eps in enumerate(epsilons):
         num_successes, num_attacks = outcomes[eps]
-        
+        predicted_advs = np.count_nonzero(success_labels[i] == 10)
+        print("Predicted {} as adversarial".format(predicted_advs))
 
         print("For epsilon = {}, there were {}/{} successful attacks (robustness = {})".format(eps, num_successes, num_attacks, round(1.0 - num_successes / num_attacks, 3)))
     
