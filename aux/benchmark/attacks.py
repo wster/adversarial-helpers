@@ -1,6 +1,7 @@
 import tensorflow as tf
 import foolbox.attacks as fa
 import numpy as np
+import eagerpy as ep
 
 from foolbox import TensorFlowModel, accuracy, samples
 from tensorflow.keras.utils import to_categorical
@@ -10,9 +11,20 @@ from math import ceil
 
 from foolbox.attacks import LinfProjectedGradientDescentAttack
 from foolbox.models.base import Model as FModel
+from foolbox.criteria import Criterion
 from typing import Optional, Callable
-import eagerpy as ep
 from eagerpy.tensor import TensorFlowTensor
+
+class CustomCriterion(Criterion):
+    def __init__(self, target_labels, **kwargs):
+        super().__init__(**kwargs)
+        self.target_labels = target_labels
+    
+    def __call__(self, perturbed, outputs):
+        preds = np.argmax(outputs.raw, axis=1)
+        true_preds = preds != self.target_labels
+        adv_preds = preds != 10
+        return true_preds & adv_preds        
 
 class CustomLossLinfPGDAttack(LinfProjectedGradientDescentAttack):
     def __init__(self, loss_fn, **kwargs):
@@ -50,7 +62,8 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
         batch_images = images[i*batch_size:(i+1)*batch_size] if not last else images[i*batch_size:]
         batch_labels = labels[i*batch_size:(i+1)*batch_size] if not last else labels[i*batch_size:]
 
-        predicted_labels, imgs, successes = attack(fmodel, batch_images, batch_labels, epsilons=epsilons)
+        criterion = CustomCriterion(batch_labels)
+        _, imgs, successes = attack(fmodel, batch_images, batch_labels, criterion=criterion, epsilons=epsilons)
         successes = successes.numpy()
 
         num_attacks = len(batch_images)
@@ -67,15 +80,14 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
             success_labels.append(categorical_labels)
 
             eps = epsilons[j]
-            print(predicted_labels[j].shape)
-            num_adversarial = np.count_nonzero(np.argmax(predicted_labels[j], axis=1) == 10)
-            num_successes = np.count_nonzero(success_idxs) - num_adversarial
+            num_successes = np.count_nonzero(success_idxs)
             outcome = (num_successes, num_attacks)
             outcome_so_far = outcomes[eps]
             outcomes[eps] = tuple(map(sum, zip(outcome, outcome_so_far)))
 
-    for eps in epsilons:
+    for i, eps in enumerate(epsilons):
         num_successes, num_attacks = outcomes[eps]
+        
 
         print("For epsilon = {}, there were {}/{} successful attacks (robustness = {})".format(eps, num_successes, num_attacks, round(1.0 - num_successes / num_attacks, 3)))
     
