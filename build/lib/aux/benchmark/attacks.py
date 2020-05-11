@@ -59,7 +59,7 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
             success_idxs = successes[j] == 1
 
             try:
-                success_imgs[j] = np.append(success_imgs[j], imgs[j][success_idxs], axis=-1) # success_imgs.append(imgs[j][success_idxs])
+                success_imgs[j] = np.append(success_imgs[j], imgs[j][success_idxs], axis=0) # success_imgs.append(imgs[j][success_idxs])
             except:
                 success_imgs.append(imgs[j][success_idxs])
 
