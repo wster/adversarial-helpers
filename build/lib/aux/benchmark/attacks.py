@@ -58,7 +58,7 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
         for j in range(len(epsilons)):
             success_idxs = successes[j] == 1
 
-            success_imgs.append(imgs[j][success_idxs])
+            success_imgs[j] = np.append(success_imgs[j], imgs[j]) # success_imgs.append(imgs[j][success_idxs])
             categorical_labels = to_categorical(batch_labels.numpy()[success_idxs])
             success_labels.append(categorical_labels)
 
