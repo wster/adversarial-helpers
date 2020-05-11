@@ -50,7 +50,7 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
         batch_images = images[i*batch_size:(i+1)*batch_size] if not last else images[i*batch_size:]
         batch_labels = labels[i*batch_size:(i+1)*batch_size] if not last else labels[i*batch_size:]
 
-        labels, imgs, successes = attack(fmodel, batch_images, batch_labels, epsilons=epsilons)
+        predicted_labels, imgs, successes = attack(fmodel, batch_images, batch_labels, epsilons=epsilons)
         successes = successes.numpy()
 
         num_attacks = len(batch_images)
@@ -67,8 +67,8 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
             success_labels.append(categorical_labels)
 
             eps = epsilons[j]
-            print(labels[j])
-            num_adversarial = np.count_nonzero(labels[j] == 10)
+            print(predicted_labels[j])
+            num_adversarial = np.count_nonzero(predicted_labels[j] == 10)
             num_successes = np.count_nonzero(success_idxs) - num_adversarial
             outcome = (num_successes, num_attacks)
             outcome_so_far = outcomes[eps]
