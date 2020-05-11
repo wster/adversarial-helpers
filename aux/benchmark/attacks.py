@@ -65,7 +65,7 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
         batch_labels = labels[i*batch_size:(i+1)*batch_size] if not last else labels[i*batch_size:]
 
         criterion = CustomCriterion(batch_labels)
-        _, imgs, successes = attack(fmodel, batch_images, batch_labels, criterion=criterion, epsilons=epsilons)
+        _, imgs, successes = attack(fmodel, batch_images, criterion, epsilons=epsilons)
         successes = successes.numpy()
 
         num_attacks = len(batch_images)
