@@ -26,8 +26,8 @@ class CustomCriterion(Criterion):
         adv_preds = preds != 10
         return true_preds & adv_preds     
 
-    def __repr__(obj):
-        print(obj)   
+    def __repr__(self):
+        print("Hej")
 
 class CustomLossLinfPGDAttack(LinfProjectedGradientDescentAttack):
     def __init__(self, loss_fn, **kwargs):
