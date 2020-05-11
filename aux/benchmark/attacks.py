@@ -51,6 +51,7 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
         batch_labels = labels[i*batch_size:(i+1)*batch_size] if not last else labels[i*batch_size:]
 
         predicted_labels, imgs, successes = attack(fmodel, batch_images, batch_labels, epsilons=epsilons)
+        print(predicted_labels.shape)
         predicted_labels = np.argmax(predicted_labels, axis=1)
         successes = successes.numpy()
 
