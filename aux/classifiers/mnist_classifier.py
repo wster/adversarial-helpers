@@ -1,5 +1,5 @@
 from tensorflow.keras.models import Model, Sequential
-from tensorflow.keras.layers import Input, Dense, Conv2D, MaxPool2D, Flatten
+from tensorflow.keras.layers import Input, Dense, Conv2D, Flatten, Dropout
 
 class MNISTClassifier(Model):
     def __init__(self, **kwargs):
@@ -7,14 +7,15 @@ class MNISTClassifier(Model):
         
         self.model = Sequential([
             Input(shape=(28,28,1)),
-            Conv2D(32, (5,5), activation='relu', padding='same'),
-            MaxPool2D(),
-            Conv2D(64, (5,5), activation='relu', padding='same'),
-            MaxPool2D(),
+            Conv2D(64, (5,5), activation='relu'),
+            Conv2D(64, (5,5), strides=(2,2), activation='relu'),
             Flatten(),
-            Dense(1024, activation='relu'),
+            Dropout(0.25),
+            Dense(128, activation='relu'),
+            Dropout(0.5),
             Dense(10)
         ])
+
 
     def call(self, inputs):
         return self.model(inputs)
