@@ -24,7 +24,10 @@ class CustomCriterion(Criterion):
         preds = np.argmax(outputs.raw, axis=1)
         true_preds = preds != self.target_labels
         adv_preds = preds != 10
-        return true_preds & adv_preds        
+        return true_preds & adv_preds     
+
+    def __repr__(self, obj):
+        print(obj)   
 
 class CustomLossLinfPGDAttack(LinfProjectedGradientDescentAttack):
     def __init__(self, loss_fn, **kwargs):
