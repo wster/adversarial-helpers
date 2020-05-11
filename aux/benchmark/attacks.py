@@ -42,7 +42,6 @@ class CustomLossLinfPGDAttack(LinfProjectedGradientDescentAttack):
             #return self.loss_fn(labels.raw, logits.raw)
         return loss_fn
 
-
 def base(attack, model, images, labels, batch_size, epsilons, bounds):
     # Preprocess test data to feed to Foolbox
     labels = np.argmax(labels, axis=1) # From categorical to raw labels
