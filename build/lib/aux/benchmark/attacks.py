@@ -33,10 +33,6 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
     images, labels = tf.convert_to_tensor(images, dtype_hint=tf.float32), tf.convert_to_tensor(labels, dtype_hint=tf.int64)
     fmodel = TensorFlowModel(model, bounds=bounds)
 
-    #print("Clean accuracy (model.evaluate):", model.evaluate(images, labels)[1])
-    print("Clean accuracy (foolbox accuracy method):", accuracy(fmodel, images, labels))
-    print("")
-
     outcomes = {}
     for eps in epsilons: outcomes[eps] = (0, 0)
 
