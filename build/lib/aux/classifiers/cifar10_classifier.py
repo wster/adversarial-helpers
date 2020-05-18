@@ -1,6 +1,5 @@
 from tensorflow.keras.models import Model, Sequential
-from tensorflow.keras.layers import Input, Dense, Conv2D, MaxPool2D, Flatten, BatchNormalization, Activation, Dropout
-from tensorflow.keras.regularizers import l2
+from tensorflow.keras.layers import Input, Dense, Conv2D, MaxPool2D, Flatten, Dropout
 
 class CIFAR10Classifier(Model):
     def __init__(self, **kwargs):
@@ -11,11 +10,12 @@ class CIFAR10Classifier(Model):
             Conv2D(64, (5,5), padding='same', activation='relu'),
             Conv2D(128, (5,5), padding='same', activation='relu'),
             Conv2D(256, (5,5), padding='same', activation='relu', dilation_rate=2),
+            Flatten(),
             Dropout(0.25),
             Dense(512, activation='relu'),
             Dropout(0.5),
             Dense(256, activation='relu'),
-            Dense(10, activation='relu'),
+            Dense(10),
         ])
 
     def call(self, inputs):
