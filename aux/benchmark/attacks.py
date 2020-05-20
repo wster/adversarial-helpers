@@ -137,10 +137,10 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
             outcomes[eps] = tuple(map(sum, zip(outcome, outcome_so_far)))
 
     for i, eps in enumerate(epsilons):
-        num_successes, num_attacks = outcomes[eps]
-        preds = np.argmax(model.predict(success_imgs[i]), axis=1)
-        predicted_advs = np.count_nonzero(preds == 10)
-        num_successes -= predicted_advs
+        #num_successes, num_attacks = outcomes[eps]
+        #preds = np.argmax(model.predict(success_imgs[i]), axis=1)
+        #predicted_advs = np.count_nonzero(preds == 10)
+        #num_successes -= predicted_advs
 
         print("For epsilon = {}, there were {}/{} successful attacks (robustness = {})".format(eps, num_successes, num_attacks, round(1.0 - num_successes / num_attacks, 3)))
     
