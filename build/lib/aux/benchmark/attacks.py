@@ -6,10 +6,10 @@ import eagerpy as ep
 from foolbox import TensorFlowModel, accuracy, samples
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.losses import categorical_crossentropy, sparse_categorical_crossentropy
-from tensorflow.math import reduce_mean, reduce_sum, square, exp, log, add, subtract, multiply, argmax, count_nonzero
+#from tensorflow.math import reduce_mean, reduce_sum, square, exp, log, add, subtract, multiply, argmax, count_nonzero
 from math import ceil
 
-from foolbox.attacks import LinfProjectedGradientDescentAttack
+from foolbox.attacks import LinfProjectedGradientDescentAttack, LinfFastGradientAttack, LinfBasicIterativeAttack
 from foolbox.models.base import Model as FModel
 from typing import Optional, Callable
 from eagerpy.tensor import TensorFlowTensor
@@ -26,6 +26,41 @@ class CustomLossLinfPGDAttack(LinfProjectedGradientDescentAttack):
             return TensorFlowTensor(tf.reduce_sum(loss))
             #return self.loss_fn(labels.raw, logits.raw)
         return loss_fn
+
+class CustomLossLinfFGSMAttack(LinfFastGradientAttack):
+    def __init__(self, loss_fn, **kwargs):
+        super().__init__(**kwargs)
+        self.loss_fn = loss_fn
+
+    def get_loss_fn(self, model: FModel, labels: ep.Tensor) -> Callable[[ep.Tensor], ep.Tensor]:
+        def loss_fn(inputs: ep.Tensor) -> ep.Tensor:
+            logits = model(inputs)
+            loss = self.loss_fn(labels.raw, logits.raw)
+            return TensorFlowTensor(tf.reduce_sum(loss))
+            #return self.loss_fn(labels.raw, logits.raw)
+        return loss_fn
+
+class CustomLossLinfBasicIterativeAttack(LinfBasicIterativeAttack):
+    def __init__(self, loss_fn, **kwargs):
+        super().__init__(**kwargs)
+        self.loss_fn = loss_fn
+
+    def get_loss_fn(self, model: FModel, labels: ep.Tensor) -> Callable[[ep.Tensor], ep.Tensor]:
+        def loss_fn(inputs: ep.Tensor) -> ep.Tensor:
+            logits = model(inputs)
+            loss = self.loss_fn(labels.raw, logits.raw)
+            return TensorFlowTensor(tf.reduce_sum(loss))
+            #return self.loss_fn(labels.raw, logits.raw)
+        return loss_fn
+
+
+def categorical_crossentropy_with_logits(y_true, y_pred):
+    return categorical_crossentropy(y_true, y_pred, from_logits=True)
+
+def sparse_categorical_crossentropy_with_logits(y_true, y_pred):
+    return sparse_categorical_crossentropy(y_true, y_pred, from_logits=True)
+
+
 
 def base(attack, model, images, labels, batch_size, epsilons, bounds):
     # Preprocess test data to feed to Foolbox
@@ -76,7 +111,7 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
     
     return all_imgs, success_imgs
 
-def pgd_attack(model, images, labels, loss_fn=sparse_categorical_crossentropy, batch_size=None, epsilons=[0.03, 0.1, 0.3], bounds=(0,1)):
+def pgd_attack(model, images, labels, loss_fn=sparse_categorical_crossentropy_with_logits, batch_size=None, epsilons=[0.03, 0.1, 0.3], bounds=(0,1)):
     """ Evaluates robustness against an L-infinity PGD attack with random restart and 40 steps.
     Args:
         model : Tensorflow model to evaluate.
@@ -86,12 +121,11 @@ def pgd_attack(model, images, labels, loss_fn=sparse_categorical_crossentropy, b
 
     print("Performing PGD attack...")
     attack = CustomLossLinfPGDAttack(loss_fn)
-    return base(attack, model, images, labels, batch_size, epsilons, bounds)
     #attack = fa.LinfPGD()
-    #return base(attack, model, images, labels, batch_size, epsilons, bounds)
+    return base(attack, model, images, labels, batch_size, epsilons, bounds)
 
 
-def fgsm_attack(model, images, labels, batch_size=None, epsilons=[0.03, 0.1, 0.3], bounds=(0,1)):
+def fgsm_attack(model, images, labels, loss_fn=sparse_categorical_crossentropy_with_logits, batch_size=None, epsilons=[0.03, 0.1, 0.3], bounds=(0,1)):
     """ Evaluates robustness against an L-infinity FGSM attack without random restart.
     Args:
         model : Tensorflow model to evaluate.
@@ -100,11 +134,12 @@ def fgsm_attack(model, images, labels, batch_size=None, epsilons=[0.03, 0.1, 0.3
     """
 
     print("Performing FGSM attack...")
-    attack = fa.FGSM()
+    attack = CustomLossLinfFGSMAttack(loss_fn)
+    #attack = fa.FGSM()
     return base(attack, model, images, labels, batch_size, epsilons, bounds)
 
 
-def basic_iterative_attack(model, images, labels, batch_size=None, epsilons=[0.03, 0.1, 0.3], bounds=(0,1)):
+def basic_iterative_attack(model, images, labels, loss_fn=sparse_categorical_crossentropy_with_logits, batch_size=None, epsilons=[0.03, 0.1, 0.3], bounds=(0,1)):
     """ Evaluates robustness against an L-infinity Basic Iterative Attack with 10 steps.
     Args:
         model : Tensorflow model to evaluate.
@@ -113,7 +148,8 @@ def basic_iterative_attack(model, images, labels, batch_size=None, epsilons=[0.0
     """
 
     print("Performing Basic Iterative Attack...")
-    attack = fa.LinfBasicIterativeAttack()
+    attack = CustomLossLinfBasicIterativeAttack(loss_fn)
+    #attack = fa.LinfBasicIterativeAttack()
     return base(attack, model, images, labels, batch_size, epsilons, bounds)
 
 
