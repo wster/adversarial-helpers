@@ -156,9 +156,9 @@ def pgd_attack(model, images, labels, norm, loss_fn=sparse_categorical_crossentr
     """
 
     print("Performing PGD attack...")
-    if norm is 'L2':
+    if norm.lower() == "l2":
         attack = CustomLossL2PGDAttack(loss_fn, steps, rel_stepsize)
-    if norm is 'Linf':
+    if norm.lower() == "linf":
         attack = CustomLossLinfPGDAttack(loss_fn, steps, rel_stepsize)
     #attack = fa.LinfPGD()
     return base(attack, model, images, labels, batch_size, epsilons, bounds)
@@ -184,13 +184,13 @@ def basic_iterative_attack(model, images, labels, norm, loss_fn=sparse_categoric
         model : Tensorflow model to evaluate.
         images : Clean images that will be turned into adversarial examples
         labels : Labels of the clean images
-        norm : 'L2' or 'Linf'
+        norm : "L2" or "Linf"
     """
 
     print("Performing Basic Iterative Attack...")
-    if norm is 'L2':
+    if norm.lower() == "l2":
         attack = CustomLossL2BasicIterativeAttack(loss_fn, steps, rel_stepsize)
-    if norm is 'Linf':
+    if norm.lower() == "linf":
         attack = CustomLossLinfBasicIterativeAttack(loss_fn, steps, rel_stepsize)
     #attack = fa.LinfBasicIterativeAttack()
     return base(attack, model, images, labels, batch_size, epsilons, bounds)
