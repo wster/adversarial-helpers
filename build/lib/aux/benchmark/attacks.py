@@ -138,9 +138,9 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
 
     for i, eps in enumerate(epsilons):
         num_successes, num_attacks = outcomes[eps]
-        #preds = np.argmax(model.predict(success_imgs[i]), axis=1)
-        #predicted_advs = np.count_nonzero(preds == 10)
-        #num_successes -= predicted_advs
+        preds = np.argmax(model.predict(success_imgs[i]), axis=1)
+        predicted_advs = np.count_nonzero(preds == 10)
+        num_successes -= predicted_advs
 
         print("For epsilon = {}, there were {}/{} successful attacks (robustness = {})".format(eps, num_successes, num_attacks, round(1.0 - num_successes / num_attacks, 3)))
     
@@ -157,7 +157,7 @@ def pgd_attack(model, images, labels, norm, loss_fn=sparse_categorical_crossentr
 
     print("Performing PGD attack...")
     if norm.lower() == "l2":
-        attack = CustomLossL2PGDAttack(loss_fn, steps, rel_stepsize)
+        attack = CustomLossL2PGDAttack(loss_fn, steps, rel_stepsize, kwargs)
     if norm.lower() == "linf":
         attack = CustomLossLinfPGDAttack(loss_fn, steps, rel_stepsize)
     #attack = fa.LinfPGD()
