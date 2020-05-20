@@ -15,9 +15,11 @@ from typing import Optional, Callable
 from eagerpy.tensor import TensorFlowTensor
 
 class CustomLossLinfPGDAttack(LinfProjectedGradientDescentAttack):
-    def __init__(self, loss_fn, **kwargs):
+    def __init__(self, loss_fn, steps, rel_stepsize, **kwargs):
         super().__init__(**kwargs)
         self.loss_fn = loss_fn
+        self.steps = steps
+        self.rel_stepsize = rel_stepsize
 
     def get_loss_fn(self, model: FModel, labels: ep.Tensor) -> Callable[[ep.Tensor], ep.Tensor]:
         def loss_fn(inputs: ep.Tensor) -> ep.Tensor:
@@ -41,9 +43,11 @@ class CustomLossLinfFGSMAttack(LinfFastGradientAttack):
         return loss_fn
 
 class CustomLossLinfBasicIterativeAttack(LinfBasicIterativeAttack):
-    def __init__(self, loss_fn, **kwargs):
+    def __init__(self, loss_fn, steps, rel_stepsize, **kwargs):
         super().__init__(**kwargs)
         self.loss_fn = loss_fn
+        self.steps = steps
+        self.rel_stepsize = rel_stepsize
 
     def get_loss_fn(self, model: FModel, labels: ep.Tensor) -> Callable[[ep.Tensor], ep.Tensor]:
         def loss_fn(inputs: ep.Tensor) -> ep.Tensor:
@@ -111,7 +115,7 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
     
     return all_imgs, success_imgs
 
-def pgd_attack(model, images, labels, loss_fn=sparse_categorical_crossentropy_with_logits, batch_size=None, epsilons=[0.03, 0.1, 0.3], bounds=(0,1)):
+def pgd_attack(model, images, labels, loss_fn=sparse_categorical_crossentropy_with_logits, steps=40, rel_stepsize=0.01/0.3, batch_size=None, epsilons=[0.03, 0.1, 0.3], bounds=(0,1)):
     """ Evaluates robustness against an L-infinity PGD attack with random restart and 40 steps.
     Args:
         model : Tensorflow model to evaluate.
@@ -120,7 +124,7 @@ def pgd_attack(model, images, labels, loss_fn=sparse_categorical_crossentropy_wi
     """
 
     print("Performing PGD attack...")
-    attack = CustomLossLinfPGDAttack(loss_fn)
+    attack = CustomLossLinfPGDAttack(loss_fn, steps, rel_stepsize)
     #attack = fa.LinfPGD()
     return base(attack, model, images, labels, batch_size, epsilons, bounds)
 
@@ -139,7 +143,7 @@ def fgsm_attack(model, images, labels, loss_fn=sparse_categorical_crossentropy_w
     return base(attack, model, images, labels, batch_size, epsilons, bounds)
 
 
-def basic_iterative_attack(model, images, labels, loss_fn=sparse_categorical_crossentropy_with_logits, batch_size=None, epsilons=[0.03, 0.1, 0.3], bounds=(0,1)):
+def basic_iterative_attack(model, images, labels, loss_fn=sparse_categorical_crossentropy_with_logits, steps=10, rel_stepsize=0.2, batch_size=None, epsilons=[0.03, 0.1, 0.3], bounds=(0,1)):
     """ Evaluates robustness against an L-infinity Basic Iterative Attack with 10 steps.
     Args:
         model : Tensorflow model to evaluate.
@@ -148,7 +152,7 @@ def basic_iterative_attack(model, images, labels, loss_fn=sparse_categorical_cro
     """
 
     print("Performing Basic Iterative Attack...")
-    attack = CustomLossLinfBasicIterativeAttack(loss_fn)
+    attack = CustomLossLinfBasicIterativeAttack(loss_fn, steps, rel_stepsize)
     #attack = fa.LinfBasicIterativeAttack()
     return base(attack, model, images, labels, batch_size, epsilons, bounds)
 
