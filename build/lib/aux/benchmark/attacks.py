@@ -9,7 +9,7 @@ from tensorflow.keras.losses import categorical_crossentropy, sparse_categorical
 #from tensorflow.math import reduce_mean, reduce_sum, square, exp, log, add, subtract, multiply, argmax, count_nonzero
 from math import ceil
 
-from foolbox.attacks import LinfProjectedGradientDescentAttack, LinfFastGradientAttack, LinfBasicIterativeAttack
+from foolbox.attacks import LinfProjectedGradientDescentAttack, LinfFastGradientAttack, LinfBasicIterativeAttack, L2BasicIterativeAttack, L2ProjectedGradientDescentAttack
 from foolbox.models.base import Model as FModel
 from typing import Optional, Callable
 from eagerpy.tensor import TensorFlowTensor
