@@ -20,7 +20,7 @@ class CustomLossLinfPGDAttack(LinfProjectedGradientDescentAttack):
         self.loss_fn = loss_fn
         self.steps = steps
         self.rel_stepsize = rel_stepsize
-        self.random_start
+        self.random_start = random_start
 
     def get_loss_fn(self, model: FModel, labels: ep.Tensor) -> Callable[[ep.Tensor], ep.Tensor]:
         def loss_fn(inputs: ep.Tensor) -> ep.Tensor:
@@ -31,11 +31,12 @@ class CustomLossLinfPGDAttack(LinfProjectedGradientDescentAttack):
         return loss_fn
 
 class CustomLossL2PGDAttack(L2ProjectedGradientDescentAttack):
-    def __init__(self, loss_fn, steps, rel_stepsize, **kwargs):
+    def __init__(self, loss_fn, steps, rel_stepsize, random_start, **kwargs):
         super().__init__(**kwargs)
         self.loss_fn = loss_fn
         self.steps = steps
         self.rel_stepsize = rel_stepsize
+        self.random_start = random_start
 
     def get_loss_fn(self, model: FModel, labels: ep.Tensor) -> Callable[[ep.Tensor], ep.Tensor]:
         def loss_fn(inputs: ep.Tensor) -> ep.Tensor:
@@ -75,11 +76,12 @@ class CustomLossLinfBasicIterativeAttack(LinfBasicIterativeAttack):
         return loss_fn
 
 class CustomLossL2BasicIterativeAttack(L2BasicIterativeAttack):
-    def __init__(self, loss_fn, steps, rel_stepsize, **kwargs):
+    def __init__(self, loss_fn, steps, rel_stepsize, random_start, **kwargs):
         super().__init__(**kwargs)
         self.loss_fn = loss_fn
         self.steps = steps
         self.rel_stepsize = rel_stepsize
+        self.random_start = random_start
 
     def get_loss_fn(self, model: FModel, labels: ep.Tensor) -> Callable[[ep.Tensor], ep.Tensor]:
         def loss_fn(inputs: ep.Tensor) -> ep.Tensor:
@@ -191,7 +193,7 @@ def basic_iterative_attack(model, images, labels, norm="linf", loss_fn=sparse_ca
 
     print("Performing Basic Iterative Attack...")
     if norm.lower() == "l2":
-        attack = CustomLossL2BasicIterativeAttack(loss_fn, steps, rel_stepsize)
+        attack = CustomLossL2BasicIterativeAttack(loss_fn, steps, rel_stepsize, random_start)
     if norm.lower() == "linf":
         attack = CustomLossLinfBasicIterativeAttack(loss_fn, steps, rel_stepsize, random_start)
     #attack = fa.LinfBasicIterativeAttack()
