@@ -161,7 +161,7 @@ def pgd_attack(model, images, labels, norm="linf", loss_fn=sparse_categorical_cr
 
     print("Performing PGD attack...")
     if norm.lower() == "l2":
-        attack = CustomLossL2PGDAttack(loss_fn, steps, rel_stepsize, random_start, kwargs)
+        attack = CustomLossL2PGDAttack(loss_fn, steps, rel_stepsize, random_start)
     if norm.lower() == "linf":
         attack = CustomLossLinfPGDAttack(loss_fn, steps, rel_stepsize, random_start)
     #attack = fa.LinfPGD()
