@@ -110,7 +110,7 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
     outcomes = {}
     for eps in epsilons: outcomes[eps] = (0, 0)
 
-    all_imgs, success_imgs = [], []
+    all_imgs, success_imgs, robustnesses, num_adversarial = [], [], [], []
     batch_size = batch_size if batch_size is not None else len(images)
     num_batches = ceil(len(images) / batch_size)
 
@@ -146,11 +146,15 @@ def base(attack, model, images, labels, batch_size, epsilons, bounds):
         if len(success_imgs[i]) > 0:
             preds = np.argmax(model.predict(success_imgs[i]), axis=1)
             predicted_advs = np.count_nonzero(preds == 10)
+            num_adversarial.append(predicted_advs)
             num_successes -= predicted_advs
+
+        robustness = round(1.0 - num_successes / num_attacks, 3)
+        robustnesses.append(robustness)
 
         print("For epsilon = {}, there were {}/{} successful attacks (robustness = {})".format(eps, num_successes, num_attacks, round(1.0 - num_successes / num_attacks, 3)))
     
-    return all_imgs, success_imgs
+    return all_imgs, success_imgs, robustnesses, num_adversarial
 
 def pgd_attack(model, images, labels, norm="linf", loss_fn=sparse_categorical_crossentropy_with_logits, steps=40, rel_stepsize=0.01/0.3, random_start=True, batch_size=None, epsilons=[0.03, 0.1, 0.3], bounds=(0,1)):
     """ Evaluates robustness against an L-infinity PGD attack with random restart and 40 steps.
