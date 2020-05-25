@@ -72,11 +72,33 @@ class Decoder(Layer):
 
         return x7
 
+class CIFARDecoder(Layer):
+    def __init__(self, **kwargs):
+        super(CIFARDecoder, self).__init__(**kwargs)
+        self.dense = Dense(512, activation='relu')
+        self.deconv1 = Conv2DTranspose(32, (8,8), strides=2, padding='valid', activation='relu')
+        self.deconv2 = Conv2DTranspose(32, (8,8), strides=2, padding='same', activation='relu')
+        self.deconv3 = Conv2DTranspose(32, (8,8), strides=2, padding='same', activation='relu')
+        self.deconv4 = Conv2DTranspose(3, (3,3), padding='same', activation='sigmoid')
+
+    def call(self, inputs):
+        x, y = inputs
+
+        x1 = Concatenate()([x, y])
+        x2 = self.dense(x1)
+        x3 = Reshape((1,1,512))(x2)
+        x4 = self.deconv1(x3)
+        x5 = self.deconv2(x4)
+        x6 = self.deconv3(x5)
+        x7 = self.deconv4(x6)
+
+        return x7
+
 class PuVAE(Model):
-    def __init__(self, latent_dim=32, **kwargs):
+    def __init__(self, latent_dim=32, dataset='mnist', **kwargs):
         super(PuVAE, self).__init__(**kwargs)
         self.encoder = Encoder(latent_dim)
-        self.decoder = Decoder()
+        self.decoder = Decoder() if dataset == 'mnist' else CIFARDecoder()
 
     def call(self, inputs):
         x, y = inputs
