@@ -1,5 +1,5 @@
 from tensorflow.keras import backend as K
-from tensorflow.keras.layers import Input, Layer, Dense, Conv2D, Flatten, Conv2DTranspose, Reshape, Concatenate
+from tensorflow.keras.layers import Input, Layer, Dense, Conv2D, Flatten, Conv2DTranspose, Reshape, Concatenate, MaxPool2D
 from tensorflow.keras.models import Model
 from tensorflow.keras.losses import mean_squared_error
 
@@ -72,6 +72,47 @@ class Decoder(Layer):
 
         return x7
 
+class CIFAREncoder(Layer):
+    def __init__(self, latent_dim=32, **kwargs):
+        super(CIFAREncoder, self).__init__(**kwargs)
+
+        self.conv1 = Conv2D(96, (3,3), padding='same', activation='relu')
+        self.conv2 = Conv2D(96, (3,3), padding='same', activation='relu')
+        self.conv3 = Conv2D(96, (3,3), padding='same', activation='relu')
+        self.pool = MaxPool2D(pool_size=(2,2))
+        self.conv4 = Conv2D(192, (3,3), padding='same', activation='relu')
+        self.conv5 = Conv2D(192, (3,3), padding='same', activation='relu')
+        self.conv6 = Conv2D(192, (3,3), padding='same', activation='relu')
+
+        self.dense1 = Dense(1024, activation='relu')
+        self.dense2 = Dense(1024, activation='relu')
+
+        self.dense3 = Dense(latent_dim, activation='relu', name='encoder_w_mean')
+        self.dense4 = Dense(latent_dim, activation='softplus', name='encoder_w_var')
+
+        self.sampling = Sampling()
+
+    def call(self, inputs):
+        x, y = inputs
+
+        x1 = self.conv1(x)
+        x2 = self.conv2(x1)
+        x3 = self.conv3(x2)
+        x4 = self.pool(x3)
+        x5 = self.conv4(x4)
+        x6 = self.conv5(x5)
+        x7 = self.conv6(x6)
+        x8 = Flatten()(x7)
+        x9 = Concatenate()([x8, y])
+        x10 = self.dense1(x9)
+        x11 = self.dense2(x10)
+
+        z_mean = self.dense3(x11)
+        z_log_var = self.dense4(x11)
+        z = self.sampling((z_mean, z_log_var))
+
+        return z_mean, z_log_var, z
+
 class CIFARDecoder(Layer):
     def __init__(self, **kwargs):
         super(CIFARDecoder, self).__init__(**kwargs)
@@ -97,7 +138,7 @@ class CIFARDecoder(Layer):
 class PuVAE(Model):
     def __init__(self, latent_dim=32, dataset='mnist', **kwargs):
         super(PuVAE, self).__init__(**kwargs)
-        self.encoder = Encoder(latent_dim)
+        self.encoder = Encoder(latent_dim) if dataset == 'mnist' else CIFAREncoder(latent_dim)
         self.decoder = Decoder() if dataset == 'mnist' else CIFARDecoder()
 
     def call(self, inputs):
