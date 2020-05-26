@@ -116,10 +116,10 @@ class CIFAREncoder(Layer):
 class CIFARDecoder(Layer):
     def __init__(self, **kwargs):
         super(CIFARDecoder, self).__init__(**kwargs)
-        self.dense = Dense(512, activation='relu')
-        self.deconv1 = Conv2DTranspose(32, (8,8), strides=2, padding='valid', activation='relu')
-        self.deconv2 = Conv2DTranspose(32, (8,8), strides=2, padding='same', activation='relu')
-        self.deconv3 = Conv2DTranspose(32, (8,8), strides=2, padding='same', activation='relu')
+        self.dense = Dense(1024, activation='relu')
+        self.deconv1 = Conv2DTranspose(192, (8,8), strides=2, padding='valid', activation='relu')
+        self.deconv2 = Conv2DTranspose(192, (8,8), strides=2, padding='same', activation='relu')
+        self.deconv3 = Conv2DTranspose(192, (8,8), strides=2, padding='same', activation='relu')
         self.deconv4 = Conv2DTranspose(3, (3,3), padding='same', activation='sigmoid')
 
     def call(self, inputs):
