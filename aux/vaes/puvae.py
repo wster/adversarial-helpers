@@ -127,7 +127,7 @@ class CIFARDecoder(Layer):
 
         x1 = Concatenate()([x, y])
         x2 = self.dense(x1)
-        x3 = Reshape((1,1,512))(x2)
+        x3 = Reshape((1,1,1024))(x2)
         x4 = self.deconv1(x3)
         x5 = self.deconv2(x4)
         x6 = self.deconv3(x5)
