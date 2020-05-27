@@ -76,13 +76,9 @@ class CIFAREncoder(Layer):
     def __init__(self, latent_dim=32, **kwargs):
         super(CIFAREncoder, self).__init__(**kwargs)
 
-        self.conv1 = Conv2D(96, (3,3), padding='same', activation='relu')
-        self.conv2 = Conv2D(96, (3,3), padding='same', activation='relu')
-        self.conv3 = Conv2D(96, (3,3), padding='same', activation='relu')
-        self.pool = MaxPool2D(pool_size=(2,2))
-        self.conv4 = Conv2D(192, (3,3), padding='same', activation='relu')
-        self.conv5 = Conv2D(192, (3,3), padding='same', activation='relu')
-        self.conv6 = Conv2D(192, (3,3), padding='same', activation='relu')
+        self.conv1 = Conv2D(64, (3,3), dilation_rate=2, padding='same', activation='relu')
+        self.conv2 = Conv2D(128, (3,3), dilation_rate=2, padding='same', activation='relu')
+        self.conv3 = Conv2D(512, (3,3), dilation_rate=2, padding='same', activation='relu')
 
         self.dense1 = Dense(1024, activation='relu')
         self.dense2 = Dense(1024, activation='relu')
@@ -98,17 +94,13 @@ class CIFAREncoder(Layer):
         x1 = self.conv1(x)
         x2 = self.conv2(x1)
         x3 = self.conv3(x2)
-        x4 = self.pool(x3)
-        x5 = self.conv4(x4)
-        x6 = self.conv5(x5)
-        x7 = self.conv6(x6)
-        x8 = Flatten()(x7)
-        x9 = Concatenate()([x8, y])
-        x10 = self.dense1(x9)
-        x11 = self.dense2(x10)
+        x4 = Flatten()(x3)
+        x5 = Concatenate()([x4, y])
+        x6 = self.dense1(x5)
+        x7 = self.dense2(x6)
 
-        z_mean = self.dense3(x11)
-        z_log_var = self.dense4(x11)
+        z_mean = self.dense3(x7)
+        z_log_var = self.dense4(x7)
         z = self.sampling((z_mean, z_log_var))
 
         return z_mean, z_log_var, z
@@ -117,9 +109,9 @@ class CIFARDecoder(Layer):
     def __init__(self, **kwargs):
         super(CIFARDecoder, self).__init__(**kwargs)
         self.dense = Dense(1024, activation='relu')
-        self.deconv1 = Conv2DTranspose(192, (8,8), strides=2, padding='valid', activation='relu')
-        self.deconv2 = Conv2DTranspose(192, (8,8), strides=2, padding='same', activation='relu')
-        self.deconv3 = Conv2DTranspose(192, (8,8), strides=2, padding='same', activation='relu')
+        self.deconv1 = Conv2DTranspose(256, (8,8), strides=2, padding='valid', activation='relu')
+        self.deconv2 = Conv2DTranspose(128, (8,8), strides=2, padding='same', activation='relu')
+        self.deconv3 = Conv2DTranspose(64, (8,8), strides=2, padding='same', activation='relu')
         self.deconv4 = Conv2DTranspose(3, (3,3), padding='same', activation='sigmoid')
 
     def call(self, inputs):
