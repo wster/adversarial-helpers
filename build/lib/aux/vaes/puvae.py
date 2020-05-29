@@ -76,15 +76,15 @@ class CIFAREncoder(Layer):
     def __init__(self, latent_dim=32, **kwargs):
         super(CIFAREncoder, self).__init__(**kwargs)
 
-        self.conv1 = Conv2D(64, (3,3), dilation_rate=2, padding='same', activation='relu')
-        self.conv2 = Conv2D(128, (3,3), dilation_rate=2, padding='same', activation='relu')
-        self.conv3 = Conv2D(512, (3,3), dilation_rate=2, padding='same', activation='relu')
+        self.conv1 = Conv2D(3, (2,2), padding='same', activation='relu')
+        self.conv2 = Conv2D(32, (2,2), dilation_rate=2, padding='same', activation='relu')
+        self.conv3 = Conv2D(32, (2,2), dilation_rate=2, padding='same', activation='relu')
+        self.conv4 = Conv2D(32, (2,2), dilation_rate=2, padding='same', activation='relu')
 
-        self.dense1 = Dense(1024, activation='relu')
-        self.dense2 = Dense(1024, activation='relu')
+        self.dense1 = Dense(128, activation='relu')
 
-        self.dense3 = Dense(latent_dim, activation='relu', name='encoder_w_mean')
-        self.dense4 = Dense(latent_dim, activation='softplus', name='encoder_w_var')
+        self.dense2 = Dense(latent_dim, activation='relu', name='encoder_w_mean')
+        self.dense3 = Dense(latent_dim, activation='softplus', name='encoder_w_var')
 
         self.sampling = Sampling()
 
@@ -94,13 +94,13 @@ class CIFAREncoder(Layer):
         x1 = self.conv1(x)
         x2 = self.conv2(x1)
         x3 = self.conv3(x2)
-        x4 = Flatten()(x3)
-        x5 = Concatenate()([x4, y])
-        x6 = self.dense1(x5)
-        x7 = self.dense2(x6)
+        x4 = self.conv4(x3)
+        x5 = Flatten()(x4)
+        x6 = Concatenate()([x5, y])
+        x7 = self.dense1(x6)
 
-        z_mean = self.dense3(x7)
-        z_log_var = self.dense4(x7)
+        z_mean = self.dense2(x7)
+        z_log_var = self.dense3(x7)
         z = self.sampling((z_mean, z_log_var))
 
         return z_mean, z_log_var, z
@@ -108,24 +108,26 @@ class CIFAREncoder(Layer):
 class CIFARDecoder(Layer):
     def __init__(self, **kwargs):
         super(CIFARDecoder, self).__init__(**kwargs)
-        self.dense = Dense(1024, activation='relu')
-        self.deconv1 = Conv2DTranspose(256, (8,8), strides=2, padding='valid', activation='relu')
-        self.deconv2 = Conv2DTranspose(128, (8,8), strides=2, padding='same', activation='relu')
-        self.deconv3 = Conv2DTranspose(64, (8,8), strides=2, padding='same', activation='relu')
-        self.deconv4 = Conv2DTranspose(3, (3,3), padding='same', activation='sigmoid')
+        self.dense1 = Dense(128, activation='relu')
+        self.dense2 = Dense(8192, activation='relu')
+        self.deconv1 = Conv2DTranspose(32, (2,2), padding='valid', activation='relu')
+        self.deconv2 = Conv2DTranspose(32, (2,2), padding='valid', activation='relu')
+        self.deconv3 = Conv2DTranspose(32, (3,3), strides=2, padding='valid', activation='relu')
+        self.conv1 = Conv2D(3, (2,2), activation='sigmoid')
 
     def call(self, inputs):
         x, y = inputs
 
         x1 = Concatenate()([x, y])
-        x2 = self.dense(x1)
-        x3 = Reshape((1,1,1024))(x2)
-        x4 = self.deconv1(x3)
-        x5 = self.deconv2(x4)
-        x6 = self.deconv3(x5)
-        x7 = self.deconv4(x6)
+        x2 = self.dense1(x1)
+        x3 = self.dense2(x2)
+        x4 = Reshape((16,16,32))(x3)
+        x5 = self.deconv1(x4)
+        x6 = self.deconv2(x5)
+        x7 = self.deconv3(x6)
+        x8 = self.conv1(x7)
 
-        return x7
+        return x8
 
 class PuVAE(Model):
     def __init__(self, latent_dim=32, dataset='mnist', **kwargs):
