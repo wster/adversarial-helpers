@@ -81,7 +81,7 @@ class CIFAREncoder(Layer):
         self.conv3 = Conv2D(32, (2,2), dilation_rate=2, padding='same', activation='relu')
         self.conv4 = Conv2D(32, (2,2), dilation_rate=2, padding='same', activation='relu')
 
-        self.dense1 = Dense(128, activation='relu')
+        self.dense1 = Dense(1024, activation='relu')
 
         self.dense2 = Dense(latent_dim, activation='relu', name='encoder_w_mean')
         self.dense3 = Dense(latent_dim, activation='softplus', name='encoder_w_var')
@@ -108,7 +108,7 @@ class CIFAREncoder(Layer):
 class CIFARDecoder(Layer):
     def __init__(self, **kwargs):
         super(CIFARDecoder, self).__init__(**kwargs)
-        self.dense1 = Dense(128, activation='relu')
+        self.dense1 = Dense(1024, activation='relu')
         self.dense2 = Dense(8192, activation='relu')
         self.deconv1 = Conv2DTranspose(32, (2,2), padding='same', activation='relu')
         self.deconv2 = Conv2DTranspose(32, (2,2), padding='same', activation='relu')
